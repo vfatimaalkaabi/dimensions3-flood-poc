@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #F5F7F7; color: #545454; font-family: 'Lexend', sans-serif; -webkit-font-smoothing: antialiased; }
+  a { color: #1E7F4E; text-decoration: none; }
+  a:hover { color: #1E7049; }
+  ::selection { background: rgba(65,221,255,.35); }
+  button:focus-visible, input:focus-visible, [tabindex]:focus-visible { outline: 2px solid #35B476; outline-offset: 2px; }
+  @keyframes d3spin { to { transform: rotate(360deg); } }
+</style>
+</helmet>
+
+<div style="min-height: 100vh; display: flex; flex-direction: column;">
+
+  <header data-screen-label="Header" style="display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 20px 32px; flex-wrap: wrap;">
+    <div style="display: flex; align-items: center; gap: 28px; flex-wrap: wrap;">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <div style="width: 34px; height: 34px; border-radius: 10px; background: #D5F8FF; display: flex; align-items: center; justify-content: center;"><svg width="22" height="22" viewBox="0 0 100 100"><polygon points="50,8 90,30 50,52 10,30" fill="#41DDFF"></polygon><polygon points="10,30 50,52 50,94 10,72" fill="#35B476"></polygon><polygon points="50,52 90,30 90,72 50,94" fill="#545454"></polygon></svg></div>
+        <span style="font-size: 17px; font-weight: 400; letter-spacing: -.02em;">Dimensions<sup style="font-size: .5em; top: -.6em; position: relative;">3</sup></span>
+      </div>
+      <nav style="display: flex; gap: 22px; font-size: 14px; font-weight: 300; color: #6B7070; flex-wrap: wrap;">
+        <a href="index.html" style="color: #6B7070;">Search</a>
+        <a href="analysis.html" style="color: #6B7070;">Analysis</a>
+        <a href="timeline.html" style="color: #6B7070;">Timeline</a>
+        <a href="city-map.html" style="color: #6B7070;">City map</a>
+        <a href="alerts.html" style="color: #6B7070;">Alerts</a>
+        <span style="color: #545454; font-weight: 400;">Report</span>
+      </nav>
+    </div>
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: #0B6A80; background: rgba(65,221,255,.22); border-radius: 999px; padding: 6px 12px;">Demo mode</span>
+      <div style="width: 34px; height: 34px; border-radius: 999px; background: #DDE3E3;"></div>
+    </div>
+  </header>
+
+  <main style="width: 100%; max-width: 1440px; margin: 0 auto; padding: 12px 32px 80px; box-sizing: border-box; display: flex; flex-direction: column; gap: 28px;">
+
+    <section data-screen-label="ReportGenerator" style="background: #fff; border-radius: 28px; padding: 30px; box-shadow: 0 2px 20px rgba(84,84,84,.06); display: flex; flex-direction: column; gap: 26px;">
+      <div style="display: flex; flex-direction: column; gap: 6px;">
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase; color: #1E7F4E;">Output</span>
+        <h1 style="margin: 0; font-size: 30px; font-weight: 300; letter-spacing: -.02em;">Generate Environmental Report</h1>
+        <span style="font-size: 14px; font-weight: 300; color: #454949;">Choose a packet, the analyses to run on it and the sections to include. Every result is combined into one report.</span>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 12px;">
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: #6B7070;">01 · Packet</span>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px;">
+          <sc-for list="{{ packets }}" as="p" hint-placeholder-count="7">
+            <button onClick="{{ p.onPick }}" style="text-align: left; font-family: 'Lexend', sans-serif; background: {{ p.bg }}; border: 1px solid {{ p.border }}; border-radius: 16px; padding: 14px 16px; cursor: pointer; display: flex; flex-direction: column; gap: 6px; min-height: 92px;">
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 9.5px; letter-spacing: .12em; text-transform: uppercase; color: #1E7F4E;">{{ p.kicker }}</span>
+              <span style="font-size: 14px; font-weight: 400; color: #1d2222;">{{ p.title }}</span>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #6B7070;">{{ p.meta }}</span>
+            </button>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 12px;">
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: #6B7070;">02 · Analyses</span>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 8px;">
+          <sc-for list="{{ analyses }}" as="ri" hint-placeholder-count="6">
+            <button onClick="{{ ri.toggle }}" role="checkbox" aria-checked="{{ ri.on }}" style="text-align: left; font-family: 'Lexend', sans-serif; font-size: 13.5px; font-weight: 300; color: #545454; background: {{ ri.bg }}; border: 1px solid {{ ri.border }}; border-radius: 12px; padding: 10px 14px; min-height: 46px; cursor: pointer; display: flex; align-items: center; gap: 10px;">
+              <span style="width: 18px; height: 18px; border-radius: 5px; flex: 0 0 auto; border: 1.5px solid {{ ri.boxBorder }}; background: {{ ri.boxBg }}; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 11px;">{{ ri.mark }}</span>
+              <span style="display: flex; flex-direction: column; gap: 2px;"><span>{{ ri.label }}</span><span style="font-size: 11.5px; color: #6B7070;">{{ ri.sub }}</span></span>
+            </button>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 12px;">
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: #6B7070;">03 · Report sections</span>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px;">
+          <sc-for list="{{ reportItems }}" as="ri" hint-placeholder-count="10">
+            <button onClick="{{ ri.toggle }}" role="checkbox" aria-checked="{{ ri.on }}" style="text-align: left; font-family: 'Lexend', sans-serif; font-size: 13.5px; font-weight: 300; color: #545454; background: {{ ri.bg }}; border: 1px solid {{ ri.border }}; border-radius: 12px; padding: 0 14px; min-height: 46px; cursor: pointer; display: flex; align-items: center; gap: 10px;">
+              <span style="width: 18px; height: 18px; border-radius: 5px; flex: 0 0 auto; border: 1.5px solid {{ ri.boxBorder }}; background: {{ ri.boxBg }}; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 11px;">{{ ri.mark }}</span>{{ ri.label }}
+            </button>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding-top: 18px; border-top: 1px solid #EEF2F2;">
+        <button onClick="{{ generateReport }}" style="font-family: 'Lexend', sans-serif; font-size: 15px; font-weight: 500; color: #fff; background: #258A55; border: none; border-radius: 999px; padding: 0 30px; min-height: 52px; cursor: pointer; display: inline-flex; align-items: center; gap: 10px;" style-hover="background: #1E7049">
+          <sc-if value="{{ busy }}" hint-placeholder-val="{{ false }}"><span style="width: 14px; height: 14px; border-radius: 999px; border: 2px solid rgba(255,255,255,.4); border-top-color: #fff; animation: d3spin .8s linear infinite;"></span></sc-if>{{ genLabel }}
+        </button>
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #6B7070;">{{ reportCount }}</span>
+      </div>
+    </section>
+
+    <sc-if value="{{ ready }}" hint-placeholder-val="{{ true }}">
+    <article data-screen-label="Report" style="width: 100%; max-width: 1040px; margin: 0 auto; background: #fff; border-radius: 28px; box-shadow: 0 2px 24px rgba(84,84,84,.08); display: flex; flex-direction: column; overflow: hidden;">
+
+      <div style="background: #D5F8FF; padding: 40px 44px 34px; display: flex; flex-direction: column; gap: 18px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;">
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <svg width="22" height="22" viewBox="0 0 100 100"><polygon points="50,8 90,30 50,52 10,30" fill="#41DDFF"></polygon><polygon points="10,30 50,52 50,94 10,72" fill="#35B476"></polygon><polygon points="50,52 90,30 90,72 50,94" fill="#545454"></polygon></svg>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase; color: #545454;">Dimensions³ · Environmental report</span>
+          </div>
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #454949;">{{ repId }} · generated {{ repAt }}</span>
+        </div>
+        <h2 style="margin: 0; font-size: 40px; font-weight: 300; letter-spacing: -.03em; line-height: 1.1; color: #1d2222;">{{ pk.title }}</h2>
+        <span style="font-size: 15px; font-weight: 300; color: #454949;">{{ pk.place }} · {{ period }}</span>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <sc-for list="{{ anChips }}" as="c" hint-placeholder-count="6">
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #1d2222; background: rgba(255,255,255,.75); border-radius: 999px; padding: 6px 12px;">{{ c }}</span>
+          </sc-for>
+        </div>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; padding-top: 6px;">
+          <button onClick="{{ printIt }}" style="font-family: 'Lexend', sans-serif; font-size: 14px; font-weight: 500; color: #fff; background: #258A55; border: none; border-radius: 999px; padding: 0 22px; min-height: 44px; cursor: pointer;" style-hover="background: #1E7049">Download PDF</button>
+          <button style="font-family: 'Lexend', sans-serif; font-size: 14px; font-weight: 400; color: #1d2222; background: #fff; border: 1px solid #C9D1D1; border-radius: 999px; padding: 0 22px; min-height: 44px; cursor: pointer;">Share with authorities</button>
+          <button style="font-family: 'Lexend', sans-serif; font-size: 14px; font-weight: 400; color: #1d2222; background: #fff; border: 1px solid #C9D1D1; border-radius: 999px; padding: 0 22px; min-height: 44px; cursor: pointer;">Download data</button>
+        </div>
+      </div>
+
+      <div style="padding: 36px 44px 44px; display: flex; flex-direction: column; gap: 40px;">
+
+        <section style="display: flex; flex-direction: column; gap: 18px;">
+          <div style="display: flex; align-items: baseline; gap: 14px;"><span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #1E7F4E;">00</span><h3 style="margin: 0; font-size: 24px; font-weight: 300; letter-spacing: -.02em;">Executive summary</h3></div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px;">
+            <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="4">
+              <div style="background: #F5F7F7; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 6px; min-width: 0;">
+                <span style="font-size: 12px; font-weight: 300; color: #6B7070;">{{ k.label }}</span>
+                <span style="font-size: 26px; font-weight: 300; letter-spacing: -.02em; font-feature-settings: 'tnum';">{{ k.value }}</span>
+                <span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #454949;">{{ k.sub }}</span>
+              </div>
+            </sc-for>
+          </div>
+          <p style="margin: 0; font-size: 15px; font-weight: 300; color: #454949; line-height: 1.7; text-wrap: pretty;">{{ pk.summary }}</p>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <sc-for list="{{ pk.findings }}" as="f" hint-placeholder-count="3">
+              <div style="display: flex; gap: 10px; font-size: 14px; font-weight: 300; color: #454949; line-height: 1.6;"><span style="color: #1E7F4E;">→</span><span>{{ f }}</span></div>
+            </sc-for>
+          </div>
+          <div style="display: flex; flex-wrap: wrap; gap: 6px 18px; padding-top: 14px; border-top: 1px solid #EEF2F2;">
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: #6B7070;">Contents</span>
+            <sc-for list="{{ toc }}" as="t" hint-placeholder-count="10"><span style="font-size: 12.5px; color: #454949;"><span style="font-family: 'JetBrains Mono', monospace; color: #1E7F4E;">{{ t.n }}</span> {{ t.label }}</span></sc-for>
+          </div>
+        </section>
+
+        <sc-if value="{{ show.study }}" hint-placeholder-val="{{ true }}">
+        <section style="display: flex; flex-direction: column; gap: 16px; padding-top: 30px; border-top: 1px solid #EEF2F2;">
+          <div style="display: flex; align-items: baseline; gap: 14px;"><span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #1E7F4E;">{{ num.study }}</span><h3 style="margin: 0; font-size: 24px; font-weight: 300; letter-spacing: -.02em;">Study area</h3></div>
+          <div style="display: flex; flex-wrap: wrap; gap: 18px;">
+            <div style="flex: 3 1 380px; min-width: 0; position: relative; border-radius: 16px; overflow: hidden; aspect-ratio: 3 / 2; background: #D8D8D8;">
+              <div style="position: absolute; inset: 0; display: grid; grid-template-columns: repeat(3, 1fr);">
+                <sc-for list="{{ studyTiles }}" as="tl" hint-placeholder-count="6"><div style="background-image: {{ tl }}; background-size: cover;"></div></sc-for>
+              </div>
+              <div style="position: absolute; left: 50%; top: 50%; width: 46%; height: 46%; transform: translate(-50%, -50%); border: 2px dashed #41DDFF; border-radius: 8px;"></div>
+              <span style="position: absolute; left: 12px; bottom: 12px; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #1d2222; background: rgba(255,255,255,.92); border-radius: 8px; padding: 5px 9px;">Esri World Imagery · dashed box = analysis area</span>
+            </div>
+            <div style="flex: 2 1 260px; min-width: 0; display: flex; flex-direction: column;">
+              <sc-for list="{{ studyRows }}" as="r" hint-placeholder-count="6">
+                <div style="display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid #EEF2F2;"><span style="font-size: 12.5px; font-weight: 300; color: #6B7070;">{{ r.k }}</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; text-align: right;">{{ r.v }}</span></div>
+              </sc-for>
+            </div>
+          </div>
+        </section>
+        </sc-if>
+
+        <sc-if value="{{ show.images }}" hint-placeholder-val="{{ true }}">
+        <section style="display: flex; flex-direction: column; gap: 16px; padding-top: 30px; border-top: 1px solid #EEF2F2;">
+          <div style="display: flex; align-items: baseline; gap: 14px;"><span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #1E7F4E;">{{ num.images }}</span><h3 style="margin: 0; font-size: 24px; font-weight: 300; letter-spacing: -.02em;">Satellite images</h3></div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+            <sc-for list="{{ satImgs }}" as="im" hint-placeholder-count="4">
+              <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0;">
+                <div style="aspect-ratio: 1 / 1; border-radius: 12px; background-color: #1d2222; background-image: {{ im.url }}; background-size: cover; background-position: center;"></div>
+                <span style="font-size: 12.5px; font-weight: 400;">{{ im.label }}</span>
+                <span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #6B7070;">{{ im.sub }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </section>
+        </sc-if>
+
+        <sc-if value="{{ show.maps }}" hint-placeholder-val="{{ true }}">
+        <section style="display: flex; flex-direction: column; gap: 16px; padding-top: 30px; border-top: 1px solid #EEF2F2;">
+          <div style="display: flex; align-items: baseline; gap: 14px;"><span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #1E7F4E;">{{ num.maps }}</span><h3 style="margin: 0; font-size: 24px; font-weight: 300; letter-spacing: -.02em;">Map styles</h3></div>
+          <span style="font-size: 13.5px; font-weight: 300; color: #454949;">The after image rendered in the five analysis map styles.</span>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px;">
+            <sc-for list="{{ mapStyles }}" as="im" hint-placeholder-count="5">
+              <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0;">
+                <div style="aspect-ratio: 1 / 1; border-radius: 12px; background-color: #1d2222; background-image: {{ im.url }}; background-size: cover; background-position: center;"></div>
+                <span style="font-size: 12.5px; font-weight: 400;">{{ im.label }}</span>
+                <span style="font-size: 11.5px; font-weight: 300; color: #6B7070; line-height: 1.45;">{{ im.sub }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </section>
+        </sc-if>
+
+        <sc-if value="{{ show.atmos }}" hint-placeholder-val="{{ true }}">
+        <section style="display: flex; flex-direction: column; gap: 16px; padding-top: 30px; border-top: 1px solid #EEF2F2;">
+          <div style="display: flex; align-items: baseline; gap: 14px;"><span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #1E7F4E;">{{ num.atmos }}</span><h3 style="margin: 0; font-size: 24px; font-weight: 300; letter-spacing: -.02em;">Atmospheric analysis & emissions</h3></div>
+          <div style="overflow-x: auto;">
+            <div style="min-width: 600px; display: flex; flex-direction: column;">
+              <div style="display: grid; grid-template-columns: 1.6fr 1fr 1fr 1fr 1.2fr; gap: 10px; padding: 0 0 8px; border-bottom: 1px solid #DDE3E3; font-family: 'JetBrains Mono', monospace; font-size: 9.5px; letter-spacing: .12em; text-transform: uppercase; color: #6B7070;">
+                <span>Indicator</span><span>Before</span><span>After</span><span>Change</span><span>vs surroundings</span>
+              </div>
+              <sc-for list="{{ gasRows }}" as="g" hint-placeholder-count="7">
+                <div style="display: grid; grid-template-columns: 1.6fr 1fr 1fr 1fr 1.2fr; gap: 10px; padding: 11px 0; border-bottom: 1px solid #EEF2F2; align-items: center;">
+                  <span style="display: flex; flex-direction: column; gap: 2px;"><span style="font-size: 13px;">{{ g.name }}</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #6B7070;">{{ g.unit }}</span></span>
+                  <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #6B7070;">{{ g.b }}</span>
+                  <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px;">{{ g.a }}</span>
+                  <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: {{ g.fg }};">{{ g.d }}</span>
+                  <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px;">{{ g.bg }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <p style="margin: 0; font-size: 14px; font-weight: 300; color: #454949; line-height: 1.7; text-wrap: pretty;">{{ atmosText }}</p>
+        </section>
+        </sc-if>
+
+        <sc-for list="{{ themeSecs }}" as="ts" hint-placeholder-count="3">
+          <section style="display: flex; flex-direction: column; gap: 16px; padding-top: 30px; border-top: 1px solid #EEF2F2;">
+            <div style="display: flex; align-items: baseline; gap: 14px;"><span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #1E7F4E;">{{ ts.n }}</span><h3 style="margin: 0; font-size: 24px; font-weight: 300; letter-spacing: -.02em;">{{ ts.title }}</h3></div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
+              <sc-for list="{{ ts.kpis }}" as="k" hint-placeholder-count="3">
+                <div style="border: 1px solid #DDE3E3; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 6px; min-width: 0;">
+                  <span style="font-size: 12px; font-weight: 300; color: #6B7070;">{{ k.label }}</span>
+                  <span style="font-size: 22px; font-weight: 300; letter-spacing: -.02em; font-feature-settings: 'tnum';">{{ k.value }}</span>
+                  <span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: {{ k.fg }};">{{ k.sub }}</span>
+                </div>
+              </sc-for>
+            </div>
+            <p style="margin: 0; font-size: 14px; font-weight: 300; color: #454949; line-height: 1.7; text-wrap: pretty;">{{ ts.text }}</p>
+          </section>
+        </sc-for>
+
+        <sc-if value="{{ show.pat }}" hint-placeholder-val="{{ true }}">
+        <section style="display: flex; flex-direction: column; gap: 16px; padding-top: 30px; border-top: 1px solid #EEF2F2;">
+          <div style="display: flex; align-items: baseline; gap: 14px;"><span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #1E7F4E;">{{ num.pat }}</span><h3 style="margin: 0; font-size: 24px; font-weight: 300; letter-spacing: -.02em;">Disaster monitoring · pattern of change</h3></div>
+          <div style="display: flex; flex-wrap: wrap; gap: 18px;">
+            <div style="flex: 1 1 260px; min-width: 0; display: flex; flex-direction: column;">
+              <sc-for list="{{ patRows }}" as="r" hint-placeholder-count="6">
+                <div style="display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid #EEF2F2;"><span style="font-size: 12.5px; font-weight: 300; color: #6B7070;">{{ r.k }}</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; text-align: right;">{{ r.v }}</span></div>
+              </sc-for>
+            </div>
+            <div style="flex: 1 1 260px; min-width: 0; display: flex; flex-direction: column; gap: 8px;">
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: #6B7070;">Hotspot cells</span>
+              <sc-for list="{{ hotRows }}" as="h" hint-placeholder-count="3">
+                <div style="display: grid; grid-template-columns: 34px 1fr auto; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px solid #EEF2F2;">
+                  <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 500; color: #1E7F4E;">{{ h.id }}</span>
+                  <span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #6B7070;">{{ h.ll }}</span>
+                  <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px;">{{ h.km }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </section>
+        </sc-if>
+
+        <sc-if value="{{ show.change }}" hint-placeholder-val="{{ true }}">
+        <section style="display: flex; flex-direction: column; gap: 16px; padding-top: 30px; border-top: 1px solid #EEF2F2;">
+          <div style="display: flex; align-items: baseline; gap: 14px;"><span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #1E7F4E;">{{ num.change }}</span><h3 style="margin: 0; font-size: 24px; font-weight: 300; letter-spacing: -.02em;">Change map</h3></div>
+          <div style="display: flex; flex-wrap: wrap; gap: 18px; align-items: flex-start;">
+            <div style="flex: 3 1 380px; min-width: 0; position: relative; border-radius: 16px; overflow: hidden; aspect-ratio: 3 / 2;">
+              <div style="position: absolute; inset: 0; background-image: {{ changeBase }}; background-size: cover; background-position: center; filter: grayscale(.85) brightness(1.15);"></div>
+              <div style="position: absolute; inset: 0; display: grid; grid-template-columns: repeat(6, 1fr); grid-template-rows: repeat(4, 1fr);">
+                <sc-for list="{{ changeCells }}" as="c" hint-placeholder-count="24">
+                  <div style="border: 1px solid rgba(255,255,255,.55); background: {{ c.bg }}; display: flex; align-items: flex-start; justify-content: space-between; padding: 4px 6px; box-sizing: border-box;">
+                    <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #1d2222;">{{ c.id }}</span>
+                    <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #1d2222;">{{ c.pct }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+            <div style="flex: 2 1 240px; min-width: 0; display: flex; flex-direction: column; gap: 10px;">
+              <span style="font-size: 13.5px; font-weight: 300; color: #454949; line-height: 1.65;">{{ changeText }}</span>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #6B7070;">0%</span>
+                <div style="flex: 1; height: 8px; border-radius: 999px; background: {{ changeRamp }};"></div>
+                <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #6B7070;">{{ changeMax }}</span>
+              </div>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #6B7070;">Share of each cell showing {{ pk.hazard }}</span>
+            </div>
+          </div>
+        </section>
+        </sc-if>
+
+        <sc-if value="{{ show.series }}" hint-placeholder-val="{{ true }}">
+        <section style="display: flex; flex-direction: column; gap: 16px; padding-top: 30px; border-top: 1px solid #EEF2F2;">
+          <div style="display: flex; align-items: baseline; gap: 14px;"><span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #1E7F4E;">{{ num.series }}</span><h3 style="margin: 0; font-size: 24px; font-weight: 300; letter-spacing: -.02em;">Time series{{ seriesSuffix }}</h3></div>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <div style="display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap;"><span style="font-size: 14px;">{{ pk.series.label }}</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #6B7070;">{{ pk.series.unit }} · one bar per image date</span></div>
+            <div style="display: flex; align-items: flex-end; gap: 6px; height: 150px; border-bottom: 1px solid #DDE3E3;">
+              <sc-for list="{{ seriesBars }}" as="b" hint-placeholder-count="12">
+                <div title="{{ b.title }}" style="flex: 1; min-width: 0; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 4px;">
+                  <span style="font-family: 'JetBrains Mono', monospace; font-size: 9.5px; color: #454949;">{{ b.v }}</span>
+                  <div style="width: 100%; max-width: 40px; height: {{ b.h }}; background: {{ b.bg }}; border-radius: 4px 4px 0 0;"></div>
+                </div>
+              </sc-for>
+            </div>
+            <div style="display: flex; gap: 6px;"><sc-for list="{{ seriesBars }}" as="b" hint-placeholder-count="12"><span style="flex: 1; min-width: 0; text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 9.5px; color: #6B7070;">{{ b.d }}</span></sc-for></div>
+          </div>
+          <sc-if value="{{ show.delta }}" hint-placeholder-val="{{ true }}">
+            <div style="overflow-x: auto; padding-top: 6px;">
+              <div style="min-width: 560px; display: flex; flex-direction: column;">
+                <div style="display: grid; grid-template-columns: 1.6fr 1fr 1fr 1fr 1fr; gap: 10px; padding: 0 0 8px; border-bottom: 1px solid #DDE3E3; font-family: 'JetBrains Mono', monospace; font-size: 9.5px; letter-spacing: .12em; text-transform: uppercase; color: #6B7070;">
+                  <span>Delta · indicator</span><span>Baseline</span><span>Peak</span><span>End</span><span>Net delta</span>
+                </div>
+                <sc-for list="{{ deltaRows }}" as="d" hint-placeholder-count="5">
+                  <div style="display: grid; grid-template-columns: 1.6fr 1fr 1fr 1fr 1fr; gap: 10px; padding: 10px 0; border-bottom: 1px solid #EEF2F2; align-items: center;">
+                    <span style="font-size: 13px;">{{ d.name }}</span>
+                    <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #6B7070;">{{ d.b }}</span>
+                    <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px;">{{ d.p }}</span>
+                    <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px;">{{ d.e }}</span>
+                    <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: {{ d.fg }};">{{ d.d }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </sc-if>
+        </section>
+        </sc-if>
+
+        <sc-if value="{{ show.city }}" hint-placeholder-val="{{ true }}">
+        <section style="display: flex; flex-direction: column; gap: 14px; padding-top: 30px; border-top: 1px solid #EEF2F2;">
+          <div style="display: flex; align-items: baseline; gap: 14px;"><span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #1E7F4E;">{{ num.city }}</span><h3 style="margin: 0; font-size: 24px; font-weight: 300; letter-spacing: -.02em;">City impact · affected locations</h3></div>
+          <sc-for list="{{ pk.streets }}" as="st" hint-placeholder-count="4">
+            <div style="display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr); gap: 12px; padding: 10px 0; border-bottom: 1px solid #EEF2F2; align-items: center;">
+              <span style="font-size: 13.5px;">{{ st.0 }}</span>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #6B7070;">{{ st.1 }}</span>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px;">{{ st.2 }}</span>
+            </div>
+          </sc-for>
+        </section>
+        </sc-if>
+
+        <sc-if value="{{ show.alerts }}" hint-placeholder-val="{{ true }}">
+        <section style="display: flex; flex-direction: column; gap: 14px; padding-top: 30px; border-top: 1px solid #EEF2F2;">
+          <div style="display: flex; align-items: baseline; gap: 14px;"><span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #1E7F4E;">{{ num.alerts }}</span><h3 style="margin: 0; font-size: 24px; font-weight: 300; letter-spacing: -.02em;">Alerts & warnings issued</h3></div>
+          <sc-for list="{{ alertRows }}" as="al" hint-placeholder-count="3">
+            <div style="display: grid; grid-template-columns: 120px 90px minmax(0, 1fr) auto; gap: 12px; padding: 10px 0; border-bottom: 1px solid #EEF2F2; align-items: center;">
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: #6B7070;">{{ al.id }}</span>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: {{ al.fg }};">{{ al.sev }}</span>
+              <span style="font-size: 13.5px;">{{ al.text }}</span>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #6B7070;">{{ al.at }}</span>
+            </div>
+          </sc-for>
+        </section>
+        </sc-if>
+
+        <sc-if value="{{ show.sources }}" hint-placeholder-val="{{ true }}">
+        <section style="display: flex; flex-direction: column; gap: 14px; padding-top: 30px; border-top: 1px solid #EEF2F2;">
+          <div style="display: flex; align-items: baseline; gap: 14px;"><span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #1E7F4E;">{{ num.sources }}</span><h3 style="margin: 0; font-size: 24px; font-weight: 300; letter-spacing: -.02em;">Data sources</h3></div>
+          <sc-for list="{{ sources }}" as="so" hint-placeholder-count="6">
+            <div style="display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1.4fr); gap: 12px; padding: 10px 0; border-bottom: 1px solid #EEF2F2; align-items: center;">
+              <span style="font-size: 13.5px;">{{ so.0 }}</span>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: #6B7070;">{{ so.1 }}</span>
+              <span style="font-size: 12.5px; font-weight: 300; color: #454949;">{{ so.2 }}</span>
+            </div>
+          </sc-for>
+        </section>
+        </sc-if>
+
+        <sc-if value="{{ show.limits }}" hint-placeholder-val="{{ true }}">
+        <section style="display: flex; flex-direction: column; gap: 12px; padding-top: 30px; border-top: 1px solid #EEF2F2;">
+          <div style="display: flex; align-items: baseline; gap: 14px;"><span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #1E7F4E;">{{ num.limits }}</span><h3 style="margin: 0; font-size: 24px; font-weight: 300; letter-spacing: -.02em;">Limitations</h3></div>
+          <p style="margin: 0; font-size: 14px; font-weight: 300; color: #454949; line-height: 1.7;">Earth Observation can reveal spatial and temporal relationships, but satellite imagery alone does not necessarily establish why a change occurred.</p>
+          <p style="margin: 0; font-size: 14px; font-weight: 300; color: #454949; line-height: 1.7;">Environmental conditions may also be influenced by rainfall, temperature, wind, dust, irrigation, construction, land-use change, seasonal cycles, sensor differences, and other factors.</p>
+          <p style="margin: 0; font-size: 12.5px; font-weight: 300; color: #6B7070; line-height: 1.7;">Atmospheric layers are coarser than the analysis area (5–100 km), so they describe the regional air mass. All values in this demo report are sample data.</p>
+        </section>
+        </sc-if>
+
+        <div style="display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding-top: 18px; border-top: 1px solid #DDE3E3; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #6B7070;">
+          <span>Dimensions³ · {{ repId }}</span><span>{{ pk.count }} images · {{ period }}</span>
+        </div>
+      </div>
+    </article>
+    </sc-if>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:1000}}">
+const GIBS = 'https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/';
+const ANALYSES = [
+  ['maps', 'Image analysis & maps', 'Five map styles and land-cover change'],
+  ['emis', 'Climate change & emissions', 'Gases, aerosols, heat, vegetation'],
+  ['pat', 'Disaster monitoring patterns', 'Hotspots, patches, spread'],
+  ['delta', 'Timeline & delta', 'Change in every indicator over time'],
+  ['city', 'City impact map', 'Affected streets and sites'],
+  ['alerts', 'Alerts & warnings', 'Warnings sent to authorities']
+];
+const REPORT_ITEMS = ['Study Area', 'Satellite Images', 'Atmospheric Analysis', 'Vegetation Analysis', 'Water Analysis', 'Land Analysis', 'Time-Series Graphs', 'Change Maps', 'Data Sources', 'Limitations'];
+const GAS = [['no2', 'Nitrogen dioxide (NO₂)', '×10¹⁵ molec/cm²', 2, true], ['so2', 'Sulphur dioxide (SO₂)', 'DU', 2, false], ['co', 'Carbon monoxide (CO)', 'ppbv', 0, true], ['ch4', 'Methane (CH₄)', 'ppbv', 0, true], ['aod', 'Aerosol optical depth', '550 nm', 2, true], ['lst', 'Land surface temperature', '°C', 1, false], ['ndvi', 'Vegetation index (NDVI)', 'index', 3, false]];
+const PK = [
+  { id: 'p1', title: 'Dubai flash flood extent', kicker: 'Sentinel-1 · GRD', count: 412, kind: 'flood', place: 'Al Quoz, Sheikh Zayed Road and Jebel Ali, Dubai, UAE', lat: 25.13, lon: 55.23, area: 186, before: '2024-04-13', after: '2024-04-24', peak: '2024-04-16', sDates: ['2024-04-13','2024-04-14','2024-04-15','2024-04-16','2024-04-17','2024-04-18','2024-04-19','2024-04-20','2024-04-21','2024-04-22','2024-04-23','2024-04-24'],
+    cover: { water: [1.8, 14.6], veg: [6.2, 5.9], bare: [88.4, 76.1] }, hazard: 'new surface water', aff: 23.8, patches: 146, big: 6.4, pattern: 'Clustered', dir: 'south-west', adj: 41,
+    hot: [['C3', 25.118, 55.214, 4.1], ['B3', 25.121, 55.180, 3.2], ['D2', 25.152, 55.262, 2.6]],
+    gas: { no2: [4.10, 3.62, 2.71], so2: [0.31, 0.28, 0.24], co: [112, 108, 104], ch4: [1921, 1918, 1909], aod: [0.42, 0.23, 0.37], lst: [38.4, 31.2, 36.9], ndvi: [0.112, 0.108, 0.094] },
+    series: { label: 'Water extent', unit: '% of area', v: [1.8, 1.9, 2.0, 9.8, 14.6, 13.1, 10.4, 8.2, 6.1, 4.3, 3.0, 2.4] },
+    delta: [['Water extent', '%', 1.8, 14.6, 2.4, -1], ['Flooded roads', 'km', 0, 38.2, 2.1, -1], ['Soil moisture', '%', 7.5, 31.2, 12.8, 0], ['Surface temperature', '°C', 38.4, 31.2, 37.6, 0], ['Turbidity (NDTI)', '', 0.06, 0.24, 0.08, -1]],
+    streets: [['Sheikh Zayed Rd underpass, Interchange 4', '1.2 km', 'depth 0.6–0.9 m'], ['Al Khail Rd, Al Quoz Industrial 3', '2.8 km', 'depth 0.3–0.5 m'], ['Umm Suqeim St at Al Barsha South', '1.6 km', 'depth 0.2–0.4 m'], ['Jebel Ali–Lehbab Rd service lanes', '3.4 km', 'depth 0.1–0.3 m']],
+    alerts: [['D3-2404-0161', 'Critical', 'Flash flood, Al Quoz Industrial 3', '16 Apr 14:20'], ['D3-2404-0164', 'High', 'Underpass flooding, Interchange 4', '16 Apr 16:05'], ['D3-2404-0172', 'Moderate', 'Standing water persists, Jebel Ali', '18 Apr 09:40']],
+    summary: 'Record rainfall on 16 April 2024 left standing water across 23.8 km² of the analysis area. Water cover rose from 1.8% to 14.6% of clear land pixels and drained slowly over the following week, with most remaining water in low-lying industrial blocks and road underpasses.',
+    findings: ['Water cover rose eight-fold, concentrated in the south-west of the area around Al Quoz and Jebel Ali.', '41% of new water connects to existing drainage channels; the rest is isolated ponding in built-up blocks.', 'Surface temperature dropped 7.2 °C after the storm and aerosols cleared by half as rain washed out dust.'] },
+  { id: 'p2', title: 'Al Ain oasis vegetation stress', kicker: 'Landsat 9 · C2 L2', count: 268, kind: 'veg', place: 'Al Ain oases and farm belt, Abu Dhabi, UAE', lat: 24.21, lon: 55.74, area: 410, before: '2024-01-17', after: '2024-07-19',
+    cover: { water: [0.4, 0.3], veg: [18.6, 12.1], bare: [80.2, 86.9] }, hazard: 'vegetation loss', aff: 26.7, patches: 212, big: 3.1, pattern: 'Dispersed', dir: 'east', adj: 63,
+    hot: [['D3', 24.205, 55.772, 3.4], ['E2', 24.231, 55.801, 2.9], ['C4', 24.181, 55.744, 2.2]],
+    gas: { no2: [1.42, 1.18, 1.01], so2: [0.18, 0.21, 0.19], co: [98, 94, 95], ch4: [1912, 1926, 1922], aod: [0.31, 0.52, 0.49], lst: [27.9, 51.6, 53.2], ndvi: [0.284, 0.196, 0.121] },
+    series: { label: 'Mean NDVI', unit: 'index', v: [0.284, 0.281, 0.274, 0.262, 0.249, 0.236, 0.221, 0.209, 0.201, 0.198, 0.196, 0.196] },
+    delta: [['Vegetation (NDVI)', '', 0.284, 0.284, 0.196, 1], ['Surface temperature', '°C', 27.9, 51.6, 51.6, 0], ['Vegetated area', '%', 18.6, 18.6, 12.1, 1], ['Soil moisture', '%', 14.2, 14.2, 6.3, 0], ['Aerosol depth', '', 0.31, 0.58, 0.52, -1]],
+    streets: [['Al Jimi oasis palm groves', '2.1 km²', 'NDVI −0.11'], ['Al Qattara farm belt', '3.6 km²', 'NDVI −0.09'], ['Al Hili agricultural plots', '4.2 km²', 'NDVI −0.08'], ['Zakher lake margins', '1.3 km²', 'NDVI −0.06']],
+    alerts: [['D3-2407-0088', 'Moderate', 'Vegetation stress, Al Jimi oasis', '12 Jul 07:15'], ['D3-2407-0091', 'Moderate', 'Heat stress on farm belt, Al Qattara', '19 Jul 11:30']],
+    summary: 'Between January and July 2024, vegetated area fell from 18.6% to 12.1% of the analysis area and mean NDVI dropped from 0.284 to 0.196. The decline is spread across many small farm plots and oasis edges rather than one zone.',
+    findings: ['26.7 km² of vegetation lost green cover, mostly in small plots on the eastern farm belt.', '63% of loss sits on the edge of land that was already bare, so oasis margins are shrinking inward.', 'Daytime ground temperature rose 23.7 °C between seasons, 1.6 °C hotter than surrounding desert at oasis edges.'] },
+  { id: 'p3', title: 'Shamal dust over Kuwait and Iraq', kicker: 'MODIS · Terra', count: 189, kind: 'dust', place: 'Kuwait and southern Iraq', lat: 29.37, lon: 47.98, area: 32000, before: '2024-03-04', after: '2024-03-11', peak: '2024-03-08', sDates: ['2024-03-04 00','2024-03-05 00','2024-03-06 00','2024-03-07 12','2024-03-08 00','2024-03-08 12','2024-03-09 00','2024-03-09 12','2024-03-10 00','2024-03-10 12','2024-03-11 00','2024-03-11 12'],
+    cover: { water: [3.1, 2.9], veg: [2.4, 2.2], bare: [94.5, 94.9] }, hazard: 'dust-covered surface', aff: 18400, patches: 4, big: 16200, pattern: 'Concentrated', dir: 'north-west', adj: 0,
+    hot: [['B2', 30.12, 47.41, 2900], ['C2', 29.96, 47.88, 2600], ['C3', 29.51, 47.92, 2100]],
+    gas: { no2: [3.20, 2.84, 2.66], so2: [0.42, 0.39, 0.35], co: [121, 128, 124], ch4: [1934, 1931, 1928], aod: [0.38, 2.41, 1.66], lst: [26.1, 21.4, 22.8], ndvi: [0.071, 0.064, 0.069] },
+    series: { label: 'Aerosol optical depth', unit: 'AOD 550 nm', v: [0.38, 0.41, 0.52, 1.14, 2.41, 1.88, 1.02, 0.66, 0.49, 0.44, 0.41, 0.39] },
+    delta: [['Aerosol depth', '', 0.38, 2.41, 0.39, -1], ['Visibility', 'km', 10, 0.4, 9.2, 1], ['Surface temperature', '°C', 26.1, 21.4, 25.8, 0], ['Wind speed', 'km/h', 18, 64, 21, 0], ['PM10 (model)', 'µg/m³', 120, 3900, 160, -1]],
+    streets: [['Kuwait International Airport', 'runways', 'visibility < 500 m'], ['Fifth Ring Road, Kuwait City', '24 km', 'visibility 0.4–1 km'], ['Shuwaikh Port', 'port area', 'operations suspended'], ['Basra–Safwan highway', '48 km', 'visibility < 1 km']],
+    alerts: [['D3-2403-0044', 'High', 'Dust front approaching Kuwait City', '08 Mar 06:10'], ['D3-2403-0047', 'Critical', 'Visibility below 500 m at airport', '08 Mar 13:45']],
+    summary: 'A shamal dust front crossed from southern Iraq into Kuwait on 8 March 2024. Aerosol optical depth rose six-fold to 2.41, covering about 18,400 km² in one connected plume before clearing within three days.',
+    findings: ['One plume held 88% of the affected area, moving from the north-west towards Kuwait City.', 'Aerosol depth peaked at 2.41, more than 50% above the surrounding region.', 'Dust cooled the ground by 4.7 °C under the plume by blocking sunlight.'] },
+  { id: 'p4', title: 'Hatta and Hajar mountain fires', kicker: 'VIIRS · 375 m', count: 231, kind: 'fire', place: 'Hatta and the Hajar mountains, Dubai and Oman border', lat: 24.80, lon: 56.12, area: 520, before: '2024-08-15', after: '2024-08-26', peak: '2024-08-19', sDates: ['2024-08-15','2024-08-16','2024-08-17','2024-08-18','2024-08-19','2024-08-20','2024-08-21','2024-08-22','2024-08-23','2024-08-24','2024-08-25','2024-08-26'],
+    cover: { water: [0.6, 0.6], veg: [9.8, 7.1], bare: [89.6, 92.3] }, hazard: 'burnt surface', aff: 6.9, patches: 38, big: 2.8, pattern: 'Clustered', dir: 'north-east', adj: 0,
+    hot: [['E2', 24.842, 56.171, 2.8], ['D2', 24.828, 56.139, 1.9], ['E3', 24.801, 56.168, 1.1]],
+    gas: { no2: [0.92, 1.36, 0.88], so2: [0.12, 0.14, 0.12], co: [96, 142, 101], ch4: [1908, 1911, 1907], aod: [0.29, 0.61, 0.33], lst: [44.2, 49.8, 45.1], ndvi: [0.164, 0.118, 0.152] },
+    series: { label: 'Active fire detections', unit: 'count per pass', v: [0, 0, 3, 11, 26, 18, 9, 4, 1, 0, 0, 0] },
+    delta: [['Burnt area', 'km²', 0, 6.9, 6.9, -1], ['Vegetation (NDVI)', '', 0.164, 0.164, 0.118, 1], ['Surface temperature', '°C', 44.2, 52.3, 49.8, 0], ['Carbon monoxide', 'ppbv', 96, 142, 101, -1], ['Aerosol depth', '', 0.29, 0.61, 0.33, -1]],
+    streets: [['Wadi Hatta upper slopes', '2.8 km²', 'burn severity high'], ['Hatta Dam catchment', '1.9 km²', 'burn severity moderate'], ['Al Wajajah border track', '1.1 km²', 'burn severity moderate'], ['Hatta heritage village outskirts', '0.4 km²', 'smoke exposure']],
+    alerts: [['D3-2408-0201', 'Critical', 'Active fire, Wadi Hatta upper slopes', '19 Aug 02:40'], ['D3-2408-0204', 'High', 'Fire spread towards dam catchment', '19 Aug 13:10']],
+    summary: 'Fires between 18 and 22 August 2024 burnt 6.9 km² of scrub on the Hajar slopes above Hatta. Carbon monoxide rose 48% and aerosol depth doubled over the area during the burn.',
+    findings: ['Three clusters, the largest 2.8 km² on the upper Wadi Hatta slopes.', 'Peak of 26 active-fire detections on 19 August, extinguished by 22 August.', 'NDVI fell 28% in burnt cells and is recovering slowly.'] },
+  { id: 'p5', title: 'Abu Dhabi coastal erosion', kicker: 'Sentinel-2 · L2A', count: 344, kind: 'coast', place: 'Saadiyat Island and the Corniche, Abu Dhabi, UAE', lat: 24.54, lon: 54.43, area: 92, before: '2023-06-03', after: '2024-06-03',
+    cover: { water: [48.2, 48.9], veg: [5.1, 5.3], bare: [46.7, 45.8] }, hazard: 'shoreline retreat', aff: 0.64, patches: 17, big: 0.21, pattern: 'Dispersed', dir: 'north', adj: 88,
+    hot: [['C1', 24.552, 54.432, 0.21], ['D1', 24.556, 54.461, 0.14], ['B2', 24.531, 54.401, 0.09]],
+    gas: { no2: [3.40, 3.58, 3.12], so2: [0.36, 0.33, 0.31], co: [108, 106, 105], ch4: [1922, 1931, 1925], aod: [0.44, 0.47, 0.45], lst: [41.2, 42.0, 40.6], ndvi: [0.091, 0.095, 0.082] },
+    series: { label: 'Mean shoreline position', unit: 'metres from 2023 line', v: [0, -0.8, -1.4, -2.1, -2.6, -3.0, -3.9, -4.4, -4.8, -5.1, -5.6, -6.2] },
+    delta: [['Shoreline position', 'm', 0, 0, -6.2, 1], ['Beach width', 'm', 42, 42, 35.8, 1], ['Water extent', '%', 48.2, 48.9, 48.9, -1], ['Turbidity (NDTI)', '', 0.04, 0.09, 0.05, -1], ['Vegetation (NDVI)', '', 0.091, 0.095, 0.095, 1]],
+    streets: [['Saadiyat Beach, north section', '1.8 km', 'retreat 9.4 m'], ['Corniche Beach, west end', '1.1 km', 'retreat 6.8 m'], ['Al Bateen marina breakwater', '0.6 km', 'retreat 4.1 m'], ['Lulu Island east shore', '2.2 km', 'retreat 3.6 m']],
+    alerts: [['D3-2405-0120', 'Moderate', 'Accelerated retreat, Saadiyat north', '22 May 10:00']],
+    summary: 'Comparing shorelines at matched tidal phase, 0.64 km² of beach was lost between June 2023 and June 2024. Mean shoreline retreat was 6.2 m, reaching 9.4 m on the northern Saadiyat beach.',
+    findings: ['Retreat is spread over 17 short stretches, the largest on Saadiyat north.', '88% of lost beach borders open water, consistent with wave-driven erosion.', 'Turbidity spikes after winter storms point to sediment moving offshore.'] },
+  { id: 'p6', title: 'Riyadh urban heat island', kicker: 'Landsat 8 · C2 L2', count: 156, kind: 'heat', place: 'Riyadh, Saudi Arabia', lat: 24.71, lon: 46.68, area: 1650, before: '2024-02-15', after: '2024-07-30',
+    cover: { water: [0.1, 0.1], veg: [4.2, 3.6], bare: [95.7, 96.3] }, hazard: 'surface above 55 °C', aff: 312, patches: 64, big: 148, pattern: 'Concentrated', dir: 'centre', adj: 0,
+    hot: [['C3', 24.688, 46.712, 41], ['D3', 24.701, 46.758, 36], ['C2', 24.742, 46.701, 29]],
+    gas: { no2: [6.80, 7.42, 4.10], so2: [0.48, 0.52, 0.39], co: [132, 128, 118], ch4: [1938, 1944, 1932], aod: [0.36, 0.58, 0.52], lst: [29.4, 57.1, 54.6], ndvi: [0.064, 0.052, 0.041] },
+    series: { label: 'Mean daytime surface temperature', unit: '°C', v: [29.4, 31.8, 36.2, 41.5, 46.8, 51.2, 54.9, 57.1, 56.4, 55.8, 54.1, 52.6] },
+    delta: [['Surface temperature', '°C', 29.4, 57.1, 57.1, 0], ['Area above 55 °C', 'km²', 0, 312, 312, -1], ['Urban–rural contrast', '°C', 1.2, 2.5, 2.5, -1], ['NO₂', '×10¹⁵', 6.8, 7.42, 7.42, -1], ['Vegetation (NDVI)', '', 0.064, 0.064, 0.052, 1]],
+    streets: [['Al Olaya business district', '41 km²', 'surface 59.2 °C'], ['Industrial City 2, south Riyadh', '36 km²', 'surface 61.4 °C'], ['King Fahd Rd corridor', '18 km', 'surface 58.6 °C'], ['Al Malaz residential blocks', '22 km²', 'surface 56.9 °C']],
+    alerts: [['D3-2407-0140', 'High', 'Extreme surface heat, south Riyadh', '28 Jul 13:30'], ['D3-2407-0143', 'Moderate', 'Night-time heat retention, Al Olaya', '29 Jul 22:30']],
+    summary: 'By late July 2024, 312 km² of Riyadh had daytime surface temperatures above 55 °C. The city core ran 2.5 °C hotter than surrounding desert, and NO₂ over the city was 81% above the regional background.',
+    findings: ['One connected hot zone held 47% of the area above 55 °C, centred on the city core.', 'Industrial City 2 recorded the highest surface temperature at 61.4 °C.', 'NO₂ stays well above surroundings year-round, marking traffic and power generation.'] },
+  { id: 'p7', title: 'Jebel Ali industrial area', kicker: 'Sentinel-2 + Sentinel-5P', count: 218, kind: 'industry', place: 'Jebel Ali port, free zone and power complex, Dubai, UAE', lat: 25.00, lon: 55.08, area: 340, before: '2023-06-15', after: '2025-06-15',
+    cover: { water: [22.4, 21.9], veg: [3.1, 2.7], bare: [74.5, 75.4] }, hazard: 'new bare or built surface', aff: 7.2, patches: 58, big: 2.4, pattern: 'Clustered', dir: 'south', adj: 71,
+    hot: [['C4', 24.962, 55.081, 2.4], ['D3', 24.991, 55.113, 1.6], ['B4', 24.958, 55.042, 1.1]],
+    gas: { no2: [37.6, 16.6, 9.8], so2: [0.62, 0.54, 0.38], co: [118, 114, 109], ch4: [1931, 1946, 1929], aod: [0.51, 0.47, 0.44], lst: [52.8, 54.1, 50.2], ndvi: [0.071, 0.063, 0.058] },
+    series: { label: 'NO₂ tropospheric column', unit: '×10¹⁵ molec/cm²', v: [37.6, 35.1, 31.8, 29.4, 27.2, 24.9, 22.6, 21.1, 19.4, 18.2, 17.1, 16.6] },
+    delta: [['NO₂', '×10¹⁵', 37.6, 37.6, 16.6, -1], ['Methane', 'ppbv', 1931, 1946, 1946, -1], ['Bare & built surface', '%', 74.5, 75.4, 75.4, 0], ['Surface temperature', '°C', 52.8, 54.1, 54.1, 0], ['Vegetation (NDVI)', '', 0.071, 0.071, 0.063, 1]],
+    streets: [['Jebel Ali Free Zone South expansion', '2.4 km²', 'new hardstanding'], ['Jebel Ali Port terminal 4', '1.6 km²', 'new container yard'], ['Jebel Ali power & desalination complex', '1.1 km²', 'NO₂ hotspot'], ['Dubai Industrial City north', '0.9 km²', 'new warehousing']],
+    alerts: [['D3-2506-0302', 'Moderate', 'Methane above regional background, Jebel Ali', '11 Jun 10:20']],
+    summary: 'Between June 2023 and June 2025, 7.2 km² of land around Jebel Ali was converted to bare or built surface. NO₂ fell from 37.6 to 16.6 ×10¹⁵ molec/cm², but stays 69% above the surrounding region, while methane rose 15 ppbv.',
+    findings: ['New hardstanding is clustered in the south around the free zone and port expansions.', 'NO₂ over the site is still 69% above surroundings, marking the power and port complex as a strong source.', 'Methane rose against a stable background, worth checking with a high-resolution methane sensor.'] }
+];
+const tileXY = (lat, lon, z) => { const n = Math.pow(2, z), r = lat * Math.PI / 180; return [Math.floor((lon + 180) / 360 * n), Math.floor((1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2 * n)]; };
+const gibs = (layer, date, z, lvl, ext, lat, lon) => { const [x, y] = tileXY(lat, lon, z); return 'url("' + GIBS + layer + '/default/' + date + '/GoogleMapsCompatible_Level' + lvl + '/' + z + '/' + y + '/' + x + '.' + ext + '")'; };
+const snap16 = d => { const t = new Date(d + 'T00:00:00Z'), y = t.getUTCFullYear(), doy = Math.floor((t - Date.UTC(y, 0, 1)) / 864e5); return new Date(Date.UTC(y, 0, 1 + Math.floor(doy / 16) * 16)).toISOString().slice(0, 10); };
+const fmtD = d => { const t = new Date(d + 'T00:00:00Z'); return t.getUTCDate() + ' ' + ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][t.getUTCMonth()] + ' ' + t.getUTCFullYear(); };
+const num = v => (Math.abs(v) >= 1000 ? Math.round(v).toLocaleString('en-US') : Math.abs(v) >= 100 ? v.toFixed(0) : Math.abs(v) >= 10 ? v.toFixed(1) : v.toFixed(Math.abs(v) < 1 && v !== 0 ? 3 : 1));
+const sg = v => (v >= 0 ? '+' : '−');
+const pctS = v => { const r0 = Math.round(Math.abs(v)); if (r0 > 0) return sg(v) + r0 + '%'; const r1 = Math.abs(v).toFixed(1); return r1 === '0.0' ? '0%' : sg(v) + r1 + '%'; };
+const decs = v => { const s = String(v); return s.includes('.') ? s.split('.')[1].length : 0; };
+
+class Component extends DCLogic {
+  state = { pk: 'p1', an: Object.fromEntries(ANALYSES.map(a => [a[0], true])), sec: Object.fromEntries(REPORT_ITEMS.map(k => [k, true])), ready: true, busy: false, at: new Date(), built: null };
+  componentWillUnmount() { clearTimeout(this.t); }
+  generate = () => { clearTimeout(this.t); this.setState({ busy: true }); this.t = setTimeout(() => this.setState({ busy: false, ready: true, at: new Date(), built: { pk: this.state.pk, an: { ...this.state.an }, sec: { ...this.state.sec } } }), 1100); };
+
+  renderVals() {
+    const s = this.state, B = s.built || { pk: s.pk, an: s.an, sec: s.sec };
+    const pk = PK.find(p => p.id === B.pk), an = B.an, sec = B.sec;
+    const chk = (on, toggle) => ({ on: on ? 'true' : 'false', mark: on ? '✓' : '', bg: on ? '#FAFBFB' : '#fff', border: on ? '#C9D1D1' : '#E9EEEE', boxBg: on ? '#545454' : '#fff', boxBorder: on ? '#545454' : '#C9D1D1', toggle });
+    const packets = PK.map(p => ({ kicker: p.kicker, title: p.title, meta: p.count + ' images · ' + fmtD(p.before) + ' → ' + fmtD(p.after), bg: s.pk === p.id ? 'rgba(53,180,118,.07)' : '#fff', border: s.pk === p.id ? '#1E7F4E' : '#E1E6E6', onPick: () => this.setState({ pk: p.id }) }));
+    const analyses = ANALYSES.map(([k, label, sub]) => ({ label, sub, ...chk(s.an[k], () => this.setState(p => ({ an: { ...p.an, [k]: !p.an[k] } }))) }));
+    const reportItems = REPORT_ITEMS.map(k => ({ label: k, ...chk(s.sec[k], () => this.setState(p => ({ sec: { ...p.sec, [k]: !p.sec[k] } }))) }));
+    const nA = ANALYSES.filter(a => s.an[a[0]]).length, nS = REPORT_ITEMS.filter(k => s.sec[k]).length;
+
+    const show = { study: sec['Study Area'], images: sec['Satellite Images'], maps: an.maps, atmos: sec['Atmospheric Analysis'], pat: an.pat, change: sec['Change Maps'], series: sec['Time-Series Graphs'], delta: an.delta, city: an.city, alerts: an.alerts, sources: sec['Data Sources'], limits: sec['Limitations'] };
+    const order = [['study', 'Study area'], ['images', 'Satellite images'], ['maps', 'Map styles'], ['atmos', 'Atmospheric analysis'], ['veg', 'Vegetation'], ['water', 'Water'], ['land', 'Land'], ['pat', 'Disaster patterns'], ['change', 'Change map'], ['series', 'Time series'], ['city', 'City impact'], ['alerts', 'Alerts'], ['sources', 'Data sources'], ['limits', 'Limitations']];
+    const on = { ...show, veg: sec['Vegetation Analysis'], water: sec['Water Analysis'], land: sec['Land Analysis'] };
+    const numMap = {}, toc = []; let n = 0;
+    order.forEach(([k, label]) => { if (on[k]) { n++; numMap[k] = String(n).padStart(2, '0'); toc.push({ n: numMap[k], label }); } });
+
+    const g = pk.gas, c = pk.cover;
+    const gasRows = GAS.filter(([k]) => an.emis || ['no2', 'aod', 'lst'].includes(k)).map(([k, name, unit, dp, rel]) => { const [b, a, bg] = g[k], d = a - b; const worse = k === 'ndvi' ? d < 0 : d > 0;
+      return { name, unit, b: b.toFixed(dp), a: a.toFixed(dp), d: rel ? pctS(d / b * 100) : sg(d) + Math.abs(d).toFixed(dp), fg: Math.abs(d) < Math.abs(b) * 0.03 ? '#6B7070' : worse ? '#B5651D' : '#1E7F4E', bg: rel ? pctS((a - bg) / bg * 100) : sg(a - bg) + Math.abs(a - bg).toFixed(dp) }; });
+    const no2c = (g.no2[1] - g.no2[0]) / g.no2[0] * 100;
+    const atmosText = 'NO₂, the main image signature of fuel burning, ' + (no2c >= 0 ? 'rose ' : 'fell ') + Math.abs(no2c).toFixed(0) + '% and sits ' + Math.abs((g.no2[1] - g.no2[2]) / g.no2[2] * 100).toFixed(0) + '% ' + (g.no2[1] >= g.no2[2] ? 'above' : 'below') + ' the surrounding region. Aerosol depth moved from ' + g.aod[0].toFixed(2) + ' to ' + g.aod[1].toFixed(2) + (an.emis ? ', methane by ' + sg(g.ch4[1] - g.ch4[0]) + Math.abs(g.ch4[1] - g.ch4[0]) + ' ppbv and carbon monoxide by ' + sg(g.co[1] - g.co[0]) + Math.abs((g.co[1] - g.co[0]) / g.co[0] * 100).toFixed(0) + '%.' : '. Turn on Climate change & emissions for the full greenhouse-gas table.');
+    const kp = (label, value, sub, fg) => ({ label, value, sub, fg: fg || '#454949' });
+    const pct = (x, y) => x.toFixed(1) + '% → ' + y.toFixed(1) + '%';
+    const themeSecs = [];
+    if (on.veg) themeSecs.push({ n: numMap.veg, title: 'Vegetation analysis', kpis: [kp('Vegetated area', pct(c.veg[0], c.veg[1]), sg(c.veg[1] - c.veg[0]) + Math.abs((c.veg[1] - c.veg[0]) / 100 * pk.area).toFixed(1) + ' km²', c.veg[1] < c.veg[0] ? '#B5651D' : '#1E7F4E'), kp('Mean NDVI', g.ndvi[0].toFixed(3) + ' → ' + g.ndvi[1].toFixed(3), 'surroundings ' + g.ndvi[2].toFixed(3)), kp('Carbon uptake', g.ndvi[1] < g.ndvi[0] ? 'Lower' : 'Higher', 'proxy from NDVI change')], text: 'Vegetation cover ' + (c.veg[1] < c.veg[0] ? 'decreased' : 'increased') + ' from ' + c.veg[0] + '% to ' + c.veg[1] + '% of clear land pixels. ' + (g.ndvi[1] < g.ndvi[0] ? 'Lower NDVI means less active photosynthesis and a weaker local carbon sink.' : 'Higher NDVI indicates healthier, more active vegetation.') });
+    if (on.water) themeSecs.push({ n: numMap.water, title: 'Water analysis', kpis: [kp('Water cover', pct(c.water[0], c.water[1]), sg(c.water[1] - c.water[0]) + Math.abs((c.water[1] - c.water[0]) / 100 * pk.area).toFixed(1) + ' km²', c.water[1] > c.water[0] + 1 ? '#1F4E79' : '#454949'), kp('Peak in sequence', pk.kind === 'flood' ? Math.max(...pk.series.v).toFixed(1) + '%' : '—', pk.kind === 'flood' ? 'of the area' : 'no flood signal'), kp('Ground cooling', sg(g.lst[1] - g.lst[0]) + Math.abs(g.lst[1] - g.lst[0]).toFixed(1) + ' °C', 'land surface temperature')], text: pk.kind === 'flood' ? 'Water cover rose from ' + c.water[0] + '% to ' + c.water[1] + '%, an increase of ' + ((c.water[1] - c.water[0]) / 100 * pk.area).toFixed(1) + ' km². New water appears in low-lying blocks and underpasses, and evaporative cooling lowered ground temperature.' : 'Water cover changed little (' + c.water[0] + '% → ' + c.water[1] + '%). No flooding signal is present in this packet.' });
+    if (on.land) themeSecs.push({ n: numMap.land, title: 'Land analysis', kpis: [kp('Bare & built surface', pct(c.bare[0], c.bare[1]), sg(c.bare[1] - c.bare[0]) + Math.abs((c.bare[1] - c.bare[0]) / 100 * pk.area).toFixed(1) + ' km²'), kp('Surface temperature', g.lst[0].toFixed(1) + ' → ' + g.lst[1].toFixed(1) + ' °C', sg(g.lst[1] - g.lst[2]) + Math.abs(g.lst[1] - g.lst[2]).toFixed(1) + ' °C vs surroundings', g.lst[1] > g.lst[2] ? '#B5651D' : '#454949'), kp('Analysis area', pk.area.toLocaleString('en-US') + ' km²', pk.count + ' images')], text: 'Bare and built surface covers ' + c.bare[1] + '% of the area after the event. ' + (g.lst[1] > g.lst[2] ? 'The area runs hotter than its surroundings, typical of sealed surfaces and exposed sand.' : 'The area is cooler than its surroundings on the after date.') });
+
+    const [cx, cy] = tileXY(pk.lat, pk.lon, 12);
+    const studyTiles = []; for (let y = cy - 1; y <= cy; y++) for (let x = cx - 1; x <= cx + 1; x++) studyTiles.push('url("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/12/' + y + '/' + x + '")');
+    const zImg = pk.area > 5000 ? 6 : 8;
+    const satImgs = [
+      { url: gibs('MODIS_Terra_CorrectedReflectance_TrueColor', pk.before, zImg, 9, 'jpg', pk.lat, pk.lon), label: 'Before · true colour', sub: fmtD(pk.before) + ' · MODIS Terra' },
+      { url: gibs('MODIS_Terra_CorrectedReflectance_TrueColor', pk.after, zImg, 9, 'jpg', pk.lat, pk.lon), label: 'After · true colour', sub: fmtD(pk.after) + ' · MODIS Terra' },
+      { url: gibs('MODIS_Terra_CorrectedReflectance_Bands721', pk.before, zImg, 9, 'jpg', pk.lat, pk.lon), label: 'Before · bands 7-2-1', sub: 'water dark blue, vegetation green' },
+      { url: gibs('MODIS_Terra_CorrectedReflectance_Bands721', pk.after, zImg, 9, 'jpg', pk.lat, pk.lon), label: 'After · bands 7-2-1', sub: 'water dark blue, vegetation green' }
+    ];
+    const mapStyles = [
+      { url: satImgs[1].url, label: 'True colour', sub: 'As the eye sees it' },
+      { url: satImgs[3].url, label: 'Water & flood', sub: 'Bands 7-2-1, water shows dark' },
+      { url: gibs('MODIS_Terra_L3_NDVI_16Day', snap16(pk.after), Math.min(zImg, 8), 9, 'png', pk.lat, pk.lon), label: 'Vegetation (NDVI)', sub: '16-day composite' },
+      { url: gibs('MODIS_Terra_Land_Surface_Temp_Day', pk.after, Math.min(zImg, 7), 7, 'png', pk.lat, pk.lon), label: 'Surface temperature', sub: 'Daytime, 1 km' },
+      { url: gibs('MODIS_Combined_Value_Added_AOD', pk.after, 6, 6, 'png', pk.lat, pk.lon), label: 'Aerosols & dust', sub: 'Optical depth, 10 km' }
+    ];
+
+    const seed = pk.id.charCodeAt(1);
+    const cellsRaw = Array.from({ length: 24 }, (_, i) => { const r = (i / 6) | 0, col = i % 6, id = 'ABCDEF'[col] + (r + 1); const h = pk.hot.findIndex(x => x[0] === id); const noise = ((Math.sin((i + 1) * seed * 12.9898) * 43758.5453) % 1 + 1) % 1; return { id, v: h === 0 ? 0.62 : h === 1 ? 0.48 : h === 2 ? 0.37 : noise * 0.18 }; });
+    const ramp = { flood: [28, 111, 209], veg: [181, 101, 29], dust: [201, 154, 46], fire: [179, 27, 27], coast: [11, 106, 128], heat: [224, 122, 58], industry: [138, 109, 59] }[pk.kind];
+    const changeCells = cellsRaw.map(cl => ({ id: cl.id, pct: Math.round(cl.v * 100) + '%', bg: 'rgba(' + ramp.join(',') + ',' + (0.08 + cl.v * 1.1).toFixed(2) + ')' }));
+
+    const sv = pk.series.v, smax = Math.max(...sv.map(Math.abs)), t0 = Date.parse(pk.before), t1 = Date.parse(pk.after);
+    const ip = sv.findIndex(v => Math.abs(v) === smax), tp = pk.peak ? Date.parse(pk.peak) + 12 * 36e5 : null, L = sv.length - 1;
+    const tAt = i => (pk.sDates ? Date.parse(pk.sDates[i].replace(' ', 'T') + (pk.sDates[i].length > 10 ? ':00:00Z' : 'T12:00:00Z')) : t0 + (t1 - t0) * i / L);
+    const dts = sv.map((_, i) => new Date(tAt(i))), spanD = (t1 - t0) / 864e5, longSpan = spanD > 300, MO = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const seriesBars = sv.map((v, i) => { const d = dts[i], dayLab = d.getUTCDate() + '/' + (d.getUTCMonth() + 1), prev = i ? dts[i - 1] : null, newDay = !prev || prev.getUTCDate() !== d.getUTCDate();
+      const lab = longSpan ? MO[d.getUTCMonth()] + ' ' + String(d.getUTCFullYear()).slice(2) : newDay ? dayLab : String(d.getUTCHours()).padStart(2, '0') + 'h';
+      return { v: num(v), h: (Math.abs(v) / smax * 82 + 4).toFixed(1) + '%', bg: i === ip ? '#1E7F4E' : '#9FD9B5', d: lab, title: d.toISOString().slice(0, 13).replace('T', ' ') + 'h: ' + v }; });
+    const deltaRows = pk.delta.map(([name, unit, b, p, e, good]) => { const d = e - b, bad = good === 0 ? null : Math.sign(d) === -good, dp = Math.max(decs(b), decs(p), decs(e), Math.abs(b) < 1 && b !== 0 ? 2 : 0); const f = v => (Math.abs(v) >= 1000 ? Math.round(v).toLocaleString('en-US') : v.toFixed(dp)); return { name: name + (unit ? ' (' + unit + ')' : ''), b: f(b), p: f(p), e: f(e), d: Math.abs(d) < 1e-9 ? '0' : sg(d) + f(Math.abs(d)), fg: Math.abs(d) < 1e-9 ? '#6B7070' : bad === null ? '#1F4E79' : bad ? '#B5651D' : '#1E7F4E' }; });
+    const SEV = { Critical: '#B31B1B', High: '#B5651D', Moderate: '#8A6D3B' };
+    const fk = v => (v >= 100 ? Math.round(v).toLocaleString('en-US') : v.toFixed(1));
+    return {
+      packets, analyses, reportItems,
+      reportCount: 'Packet: ' + PK.find(p => p.id === s.pk).title + ' · ' + nA + ' analyses · ' + nS + ' of ' + REPORT_ITEMS.length + ' sections',
+      generateReport: this.generate, busy: s.busy, genLabel: s.busy ? 'Generating…' : 'Generate Report', ready: s.ready,
+      printIt: () => window.print(),
+      pk, period: fmtD(pk.before) + ' → ' + fmtD(pk.after),
+      repId: 'RPT-' + pk.id.toUpperCase() + '-' + s.at.toISOString().slice(2, 10).replace(/-/g, ''), repAt: s.at.toISOString().slice(0, 16).replace('T', ' '),
+      anChips: ANALYSES.filter(a => an[a[0]]).map(a => a[1]),
+      kpis: [kp('Affected area', fk(pk.aff) + ' km²', pk.hazard), kp('Images analysed', String(pk.count), pk.kicker), kp(pk.series.label, num(sv[0]) + ' → ' + num(sv[sv.length - 1]), 'peak ' + num(sv.reduce((a, v) => (Math.abs(v) > Math.abs(a) ? v : a), 0))), kp('Alerts issued', String(pk.alerts.length), pk.alerts.filter(a => a[1] === 'Critical').length + ' critical')],
+      toc, show, num: numMap,
+      studyTiles, studyRows: [{ k: 'Location', v: pk.place }, { k: 'Centre', v: pk.lat.toFixed(3) + '°N ' + pk.lon.toFixed(3) + '°E' }, { k: 'Analysis area', v: pk.area.toLocaleString('en-US') + ' km²' }, { k: 'Period', v: fmtD(pk.before) + ' → ' + fmtD(pk.after) }, { k: 'Images in packet', v: String(pk.count) }, { k: 'Primary sensor', v: pk.kicker }],
+      satImgs, mapStyles, gasRows, atmosText, themeSecs,
+      patRows: [{ k: 'Hazard', v: pk.hazard }, { k: 'Affected area', v: fk(pk.aff) + ' km²' }, { k: 'Patches', v: String(pk.patches) }, { k: 'Largest patch', v: fk(pk.big) + ' km² (' + Math.round(pk.big / pk.aff * 100) + '%)' }, { k: 'Spatial pattern', v: pk.pattern }, { k: 'Centre of change', v: pk.dir }].concat(pk.adj ? [{ k: pk.kind === 'flood' ? 'Connected to existing water' : 'Spreading from edges', v: pk.adj + '%' }] : []),
+      hotRows: pk.hot.map(h => ({ id: h[0], ll: h[1].toFixed(3) + '°N ' + h[2].toFixed(3) + '°E', km: fk(h[3]) + ' km²' })),
+      changeBase: satImgs[1].url, changeCells, changeRamp: 'linear-gradient(90deg, rgba(' + ramp.join(',') + ',.08), rgb(' + ramp.join(',') + '))', changeMax: '62%',
+      changeText: 'Cells ' + pk.hot.map(h => h[0]).join(', ') + ' show the most ' + pk.hazard + '. ' + pk.findings[0],
+      seriesBars, seriesSuffix: an.delta ? ' & delta' : '', deltaRows,
+      alertRows: pk.alerts.map(a => ({ id: a[0], sev: a[1], fg: SEV[a[1]] || '#6B7070', text: a[2], at: a[3] })),
+      sources: [['MODIS Terra / Aqua', '250 m – 10 km', 'True colour, bands 7-2-1, NDVI, surface temperature, aerosols'], ['Sentinel-5P TROPOMI', '~5 km', 'Nitrogen dioxide column'], ['Suomi NPP OMPS', '~50 km', 'Sulphur dioxide'], ['Aqua AIRS', '1°', 'Carbon monoxide, methane'], [pk.kicker, 'packet sensor', pk.count + ' images in this packet'], ['Esri World Imagery', 'sub-metre', 'Study-area basemap']]
+    };
+  }
+}
+</script>
+</body>
+</html>

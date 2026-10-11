@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dimensions³ — City impact map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha384-sHL9NAb7lN7rfvG5lfHpm643Xkcjzp4jFvuavGOndn6pjVqS6ny56CAt3nsEVT4H" crossorigin="anonymous">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH" crossorigin="anonymous"></script>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #F5F7F7; color: #545454; font-family: 'Lexend', sans-serif; -webkit-font-smoothing: antialiased; }
+  a { color: #1E7F4E; text-decoration: none; }
+  a:hover { color: #1E7F4E; }
+  ::selection { background: rgba(53,180,118,.22); }
+  .mono { font-family: 'JetBrains Mono', monospace; font-feature-settings: 'tnum'; }
+  .kicker { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: #6B7070; }
+  .card { background: #fff; border-radius: 22px; box-shadow: 0 2px 20px rgba(0,0,0,.05); }
+  .chip { display: flex; align-items: center; gap: 8px; white-space: nowrap; border: 1px solid rgba(0,0,0,.12); background: transparent; color: #454949; border-radius: 999px; padding: 9px 15px; font-size: 13px; font-family: 'Lexend', sans-serif; font-weight: 300; cursor: pointer; user-select: none; }
+  .chip.on { border-color: #1E7F4E; background: rgba(53,180,118,.08); color: #1E7F4E; }
+  .chip:focus-visible, .row:focus-visible { outline: 2px solid #35B476; outline-offset: 2px; }
+  .btn { font-family: 'Lexend', sans-serif; font-size: 14px; border-radius: 999px; min-height: 44px; padding: 0 24px; cursor: pointer; white-space: nowrap; }
+  .btn-primary { font-weight: 500; color: #fff; background: #258A55; border: none; }
+  .btn-primary:hover { background: #1E7049; }
+  .btn-ghost { font-weight: 400; color: #545454; background: transparent; border: 1px solid rgba(0,0,0,.15); }
+  .btn-ghost:hover { border-color: #1E7F4E; color: #1E7F4E; }
+  .row { display: flex; gap: 12px; align-items: center; padding: 12px; border-radius: 14px; border: 1px solid rgba(0,0,0,.07); cursor: pointer; background: #fff; }
+  .row:hover { border-color: #1E7F4E; }
+  .row.on { border-color: #1E7F4E; background: rgba(53,180,118,.05); }
+  #map { height: 100%; width: 100%; border-radius: 16px; }
+  .leaflet-container { background: #E6E6E6; font-family: 'JetBrains Mono', monospace; }
+  .leaflet-control-attribution { font-size: 9px; }
+  select { font-family: 'Lexend', sans-serif; font-size: 14px; font-weight: 300; color: #545454; background: #EEF2F2; border: 1px solid transparent; border-radius: 14px; padding: 0 14px; min-height: 48px; outline: none; appearance: none; width: 100%; cursor: pointer; }
+  select:focus-visible { border-color: #1E7F4E; }
+</style>
+</head>
+<body>
+
+<header style="display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 20px 32px; flex-wrap: wrap;">
+  <div style="display: flex; align-items: center; gap: 28px;">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <div style="width: 34px; height: 34px; border-radius: 10px; background: #D5F8FF; display: flex; align-items: center; justify-content: center;"><svg width="22" height="22" viewBox="0 0 100 100"><polygon points="50,8 90,30 50,52 10,30" fill="#41DDFF"></polygon><polygon points="10,30 50,52 50,94 10,72" fill="#35B476"></polygon><polygon points="50,52 90,30 90,72 50,94" fill="#545454"></polygon></svg></div>
+      <span style="font-size: 17px; letter-spacing: -.02em;">Dimensions<sup style="font-size: .5em; position: relative; top: -.6em;">3</sup></span>
+    </div>
+    <nav style="display: flex; gap: 22px; font-size: 14px; font-weight: 300; color: #6B7070;">
+      <a href="index.html" style="color: #6B7070;">Search</a>
+      <a href="analysis.html" style="color: #6B7070;">Analysis</a>
+      <a href="timeline.html" style="color: #6B7070;">Timeline</a>
+      <span style="color: #545454; font-weight: 400;">City map</span>
+      <a href="alerts.html" style="color: #6B7070;">Alerts</a>
+        <a href="report.html" style="color: #6B7070;">Report</a>
+    </nav>
+  </div>
+  <div style="display: flex; align-items: center; gap: 12px;">
+    <span class="mono" style="font-size: 11px; color: #6B7070;">1 284 credits</span>
+    <div style="width: 34px; height: 34px; border-radius: 999px; background: #DDE3E3;"></div>
+  </div>
+</header>
+
+<main style="width: 100%; max-width: 1440px; margin: 0 auto; padding: 12px 32px 96px; display: flex; flex-direction: column; gap: 20px;">
+
+  <section class="card" style="padding: 20px 24px; display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-end;">
+    <div style="flex: 1 1 220px; min-width: 0; display: flex; flex-direction: column; gap: 8px;">
+      <span class="kicker">City</span>
+      <select id="city"></select>
+    </div>
+    <div style="flex: 3 1 320px; min-width: 0; display: flex; flex-direction: column; gap: 8px;">
+      <span class="kicker">Hazard layer</span>
+      <div id="hazards" style="display: flex; gap: 8px; flex-wrap: wrap;"></div>
+    </div>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+      <button class="btn btn-ghost">Export GeoJSON</button>
+      <button class="btn btn-primary">Dispatch alert</button>
+    </div>
+  </section>
+
+  <section style="display: flex; flex-wrap: wrap; gap: 20px; align-items: stretch;">
+
+    <div style="flex: 100 1 460px; min-width: 0; display: flex; flex-direction: column; gap: 16px;">
+      <div class="card" style="padding: 18px; display: flex; flex-direction: column; gap: 16px;">
+        <div style="position: relative; border-radius: 16px; overflow: hidden; aspect-ratio: 16 / 10; min-height: 340px;">
+          <div id="map"></div>
+          <div style="position: absolute; left: 16px; top: 16px; z-index: 500; background: rgba(255,255,255,.94); border-radius: 12px; padding: 11px 14px; display: flex; flex-direction: column; gap: 5px; max-width: 280px; pointer-events: none;">
+            <span class="kicker" id="mapTitle">Flash flood impact</span>
+            <span class="mono" id="mapStamp" style="font-size: 11px;"></span>
+          </div>
+          <div style="position: absolute; right: 16px; bottom: 34px; z-index: 500; background: rgba(255,255,255,.94); border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px;">
+            <span class="kicker">Severity</span>
+            <div id="legend" style="display: flex; flex-direction: column; gap: 6px;"></div>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
+          <span class="kicker" style="white-space: nowrap;">Show severity ≥</span>
+          <div id="sevChips" style="display: flex; gap: 8px; flex-wrap: wrap;"></div>
+          <span class="mono" id="shownCount" style="font-size: 11px; color: #6B7070; margin-left: auto;"></span>
+        </div>
+      </div>
+
+      <div id="stats" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px;"></div>
+    </div>
+
+    <div style="flex: 1 1 320px; min-width: 0; display: flex; flex-direction: column; gap: 16px;">
+      <div class="card" style="padding: 22px; display: flex; flex-direction: column; gap: 16px;">
+        <div style="display: flex; align-items: center; gap: 9px;">
+          <span style="width: 6px; height: 6px; border-radius: 999px; background: #258A55;"></span>
+          <span class="kicker">Affected locations</span>
+          <span class="mono" id="listCount" style="font-size: 11px; color: #6B7070; margin-left: auto;"></span>
+        </div>
+        <p id="summary" style="margin: 0; font-size: 13px; font-weight: 300; color: #454949; line-height: 1.65; text-wrap: pretty;"></p>
+        <div style="height: 1px; background: rgba(0,0,0,.08);"></div>
+        <div id="list" style="display: flex; flex-direction: column; gap: 8px; max-height: 520px; overflow-y: auto;"></div>
+      </div>
+    </div>
+
+  </section>
+</main>
+
+<script>
+// Arabian Gulf cities. Each place is real geometry — a street corridor (line),
+// a district footprint (zone) or a critical asset (point).
+const CITIES = {
+  kuwait: { label: 'Kuwait City, Kuwait', center: [29.3759, 47.9774], zoom: 12, pop: 3.0, places: [
+    { name: 'Gulf Road', area: 'Sharq', kind: 'line', coords: [[29.3902,48.0006],[29.3708,48.0004],[29.3512,47.9898],[29.3318,47.9802]] },
+    { name: 'Shuwaikh port area', area: 'Shuwaikh', kind: 'zone', coords: [[29.3482,47.9198],[29.3534,47.9382],[29.3378,47.9432],[29.3328,47.9248]] },
+    { name: 'Jahra Road', area: 'Shuwaikh', kind: 'line', coords: [[29.3402,47.9202],[29.3304,47.8902],[29.3208,47.8604]] },
+    { name: 'Sharq waterfront', area: 'Sharq', kind: 'zone', coords: [[29.3822,48.0018],[29.3862,48.0142],[29.3742,48.0182],[29.3702,48.0058]] },
+    { name: 'Amiri Hospital', area: 'Sharq', kind: 'point', coords: [29.3781, 47.9932] }
+  ]},
+  dammam: { label: 'Dammam & Al Khobar, Saudi Arabia', center: [26.3800, 50.1400], zoom: 11, pop: 1.6, places: [
+    { name: 'King Saud Road', area: 'Dammam centre', kind: 'line', coords: [[26.4352,50.1002],[26.4248,50.1104],[26.4152,50.1198]] },
+    { name: 'Dammam port', area: 'Al Mina', kind: 'zone', coords: [[26.4602,50.1698],[26.4652,50.1898],[26.4478,50.1952],[26.4428,50.1748]] },
+    { name: 'Khobar Corniche', area: 'Al Khobar', kind: 'line', coords: [[26.2902,50.2098],[26.2752,50.2152],[26.2602,50.2182]] },
+    { name: 'Al Anoud district', area: 'Dammam', kind: 'zone', coords: [[26.4002,50.0798],[26.4052,50.0952],[26.3908,50.0992],[26.3858,50.0842]] },
+    { name: 'King Fahd Hospital', area: 'Dammam', kind: 'point', coords: [26.4102, 50.0952] }
+  ]},
+  manama: { label: 'Manama, Bahrain', center: [26.2285, 50.5860], zoom: 12, pop: 0.7, places: [
+    { name: 'King Faisal Highway', area: 'Manama centre', kind: 'line', coords: [[26.2402,50.5698],[26.2352,50.5848],[26.2302,50.5992]] },
+    { name: 'Diplomatic Area', area: 'Manama', kind: 'zone', coords: [[26.2422,50.5848],[26.2452,50.5958],[26.2352,50.5992],[26.2322,50.5878]] },
+    { name: 'Sitra industrial', area: 'Sitra', kind: 'zone', coords: [[26.1552,50.6198],[26.1602,50.6378],[26.1452,50.6418],[26.1402,50.6238]] },
+    { name: 'Muharraq causeway', area: 'Muharraq', kind: 'line', coords: [[26.2502,50.6048],[26.2562,50.6148],[26.2622,50.6218]] },
+    { name: 'Salmaniya Medical Complex', area: 'Manama', kind: 'point', coords: [26.2172, 50.5682] }
+  ]},
+  doha: { label: 'Doha, Qatar', center: [25.2854, 51.5310], zoom: 12, pop: 2.4, places: [
+    { name: 'Al Corniche', area: 'Doha Bay', kind: 'line', coords: [[25.3202,51.5302],[25.3052,51.5352],[25.2902,51.5392],[25.2762,51.5382]] },
+    { name: 'Msheireb and the Souq', area: 'Doha centre', kind: 'zone', coords: [[25.2882,51.5178],[25.2912,51.5288],[25.2802,51.5318],[25.2772,51.5208]] },
+    { name: 'Industrial Area', area: 'Ar Rayyan', kind: 'zone', coords: [[25.2002,51.4698],[25.2052,51.4898],[25.1872,51.4952],[25.1832,51.4752]] },
+    { name: 'Al Sadd interchange', area: 'Al Sadd', kind: 'line', coords: [[25.2792,51.4952],[25.2702,51.5052],[25.2622,51.5152]] },
+    { name: 'Hamad General Hospital', area: 'Doha', kind: 'point', coords: [25.2822, 51.5102] }
+  ]},
+  abudhabi: { label: 'Abu Dhabi, UAE', center: [24.4539, 54.3773], zoom: 11, pop: 1.5, places: [
+    { name: 'Corniche Road', area: 'Abu Dhabi island', kind: 'line', coords: [[24.4822,54.3302],[24.4742,54.3482],[24.4652,54.3622],[24.4562,54.3702]] },
+    { name: 'Mussafah industrial', area: 'Mussafah', kind: 'zone', coords: [[24.3562,54.4798],[24.3602,54.5018],[24.3412,54.5058],[24.3382,54.4842]] },
+    { name: 'Airport Road', area: 'Al Matar', kind: 'line', coords: [[24.4302,54.4602],[24.4152,54.4802],[24.4002,54.5002]] },
+    { name: 'Khalifa City', area: 'Khalifa City A', kind: 'zone', coords: [[24.4202,54.5698],[24.4262,54.5898],[24.4082,54.5958],[24.4022,54.5758]] },
+    { name: 'Mina Zayed port', area: 'Al Mina', kind: 'point', coords: [24.5012, 54.3742] }
+  ]},
+  dubai: { label: 'Dubai, UAE', center: [25.2048, 55.2708], zoom: 11, pop: 3.6, places: [
+    { name: 'Sheikh Zayed Road', area: 'Trade Centre to Barsha', kind: 'line', coords: [[25.2292,55.2862],[25.2052,55.2702],[25.1802,55.2482],[25.1562,55.2332]] },
+    { name: 'Al Quoz industrial', area: 'Al Quoz', kind: 'zone', coords: [[25.1522,55.2258],[25.1542,55.2418],[25.1392,55.2452],[25.1372,55.2288]] },
+    { name: 'Deira and Naif', area: 'Deira', kind: 'zone', coords: [[25.2762,55.3078],[25.2792,55.3218],[25.2652,55.3262],[25.2622,55.3118]] },
+    { name: 'Dubai Creek waterfront', area: 'Bur Dubai', kind: 'line', coords: [[25.2622,55.2998],[25.2502,55.3078],[25.2372,55.3202]] },
+    { name: 'Rashid Hospital', area: 'Oud Metha', kind: 'point', coords: [25.2512, 55.3142] }
+  ]},
+  sharjah: { label: 'Sharjah, UAE', center: [25.3463, 55.4209], zoom: 12, pop: 1.8, places: [
+    { name: 'Al Ittihad Road', area: 'Sharjah to Dubai', kind: 'line', coords: [[25.3202,55.3798],[25.3102,55.3602],[25.3002,55.3402]] },
+    { name: 'Al Khan lagoon', area: 'Al Khan', kind: 'zone', coords: [[25.3262,55.3758],[25.3302,55.3898],[25.3162,55.3952],[25.3122,55.3808]] },
+    { name: 'Industrial Area 13', area: 'Industrial Area', kind: 'zone', coords: [[25.3052,55.4248],[25.3092,55.4418],[25.2942,55.4462],[25.2902,55.4288]] },
+    { name: 'Corniche Al Buhaira', area: 'Al Buhaira', kind: 'line', coords: [[25.3382,55.3818],[25.3452,55.3878],[25.3522,55.3958]] },
+    { name: 'Kuwaiti Hospital', area: 'Al Layyah', kind: 'point', coords: [25.3482, 55.3902] }
+  ]},
+  muscat: { label: 'Muscat, Oman', center: [23.5880, 58.3829], zoom: 11, pop: 1.4, places: [
+    { name: 'Sultan Qaboos Street', area: 'Al Khuwair', kind: 'line', coords: [[23.5952,58.4202],[23.5902,58.4002],[23.5852,58.3802],[23.5802,58.3602]] },
+    { name: 'Wadi Kabir', area: 'Ruwi', kind: 'zone', coords: [[23.5902,58.5398],[23.5952,58.5548],[23.5802,58.5602],[23.5762,58.5442]] },
+    { name: 'Mutrah Corniche', area: 'Mutrah', kind: 'line', coords: [[23.6202,58.5598],[23.6252,58.5698],[23.6302,58.5798]] },
+    { name: 'Al Khoud and Seeb', area: 'Seeb', kind: 'zone', coords: [[23.5702,58.1798],[23.5762,58.1978],[23.5602,58.2042],[23.5542,58.1862]] },
+    { name: 'Royal Hospital', area: 'Bawshar', kind: 'point', coords: [23.5852, 58.3402] }
+  ]}
+};
+
+const HAZARDS = {
+  flood: {
+    label: 'Flash flood', title: 'Flash flood impact', stamp: '16.04.2024 · S1A radar + drainage model',
+    colors: { high: '#1F4E79', med: '#3E86B5', low: '#93BCD6' },
+    legend: [['high', 'Over 50 cm'], ['med', '20–50 cm'], ['low', 'Under 20 cm']],
+    metric: v => Math.round(18 + v * 0.62) + ' cm standing water',
+    statUnits: [['Locations affected', 'sites'], ['Peak depth', 'cm'], ['People exposed', 'residents'], ['Road length', 'km']],
+    summary: city => 'Radar water extent intersected with the street network across ' + city + '. Storm drainage is designed for a fraction of this rainfall, so depth concentrates in underpasses and low-lying industrial plots rather than spreading evenly.'
+  },
+  heat: {
+    label: 'Heat & humidity', title: 'Heat stress impact', stamp: '28.07.2024 13:20 · LC09 thermal + wet-bulb',
+    colors: { high: '#B31B1B', med: '#E04A16', low: '#F0A03C' },
+    legend: [['high', 'Wet-bulb over 33 °C'], ['med', '30–33 °C'], ['low', 'Under 30 °C']],
+    metric: v => (38 + v * 0.11).toFixed(1) + ' °C · WB ' + (29 + v * 0.05).toFixed(1) + ' °C',
+    statUnits: [['Hot sites', 'over 42 °C'], ['Peak surface', '°C'], ['People exposed', 'residents'], ['Shaded area', '% of built']],
+    summary: city => 'Surface temperature at the early-afternoon pass over ' + city + ', paired with wet-bulb from the nearest station. Outdoor work thresholds are exceeded at every high-severity site for more than six hours a day.'
+  },
+  dust: {
+    label: 'Dust storm', title: 'Dust storm impact', stamp: '09.03.2024 · MODIS AOD + surface visibility',
+    colors: { high: '#8A5A18', med: '#B98A3A', low: '#D9BE86' },
+    legend: [['high', 'Visibility under 200 m'], ['med', '200–800 m'], ['low', 'Over 800 m']],
+    metric: v => Math.round(1000 - v * 8.4) + ' m visibility · PM10 ' + Math.round(180 + v * 6.2),
+    statUnits: [['Sites affected', 'sites'], ['Min visibility', 'm'], ['People exposed', 'residents'], ['Flights delayed', 'movements']],
+    summary: city => 'Aerosol depth over ' + city + ' during the shamal event, calibrated against surface visibility readings. The worst corridors run perpendicular to the wind, where blown sand settles on the carriageway.'
+  },
+  coastal: {
+    label: 'Coastal inundation', title: 'Coastal inundation exposure', stamp: 'Modelled · 50-yr surge at high tide',
+    colors: { high: '#1D6F6A', med: '#3E9E95', low: '#8FC8C1' },
+    legend: [['high', 'Over 1.5 m'], ['med', '0.8–1.5 m'], ['low', 'Under 0.8 m']],
+    metric: v => (0.4 + v * 0.017).toFixed(1) + ' m above ground',
+    statUnits: [['Exposed sites', 'sites'], ['Max inundation', 'm'], ['People exposed', 'residents'], ['Reclaimed land', '% of extent']],
+    summary: city => 'Surge propagated onto the reclaimed shoreline of ' + city + ' for a 50-year return event at high tide. Exposure follows the newest waterfront development, which sits lowest above datum.'
+  }
+};
+
+const SEV_ORDER = { high: 3, med: 2, low: 1 };
+const SEV_LABEL = { high: 'High', med: 'Moderate', low: 'Low' };
+const SEV_PATTERN = {
+  flood:   ['high', 'high', 'med', 'med', 'low'],
+  heat:    ['high', 'high', 'med', 'low', 'med'],
+  dust:    ['med', 'high', 'high', 'low', 'med'],
+  coastal: ['high', 'med', 'low', 'high', 'med']
+};
+
+function seeded(str) {
+  let h = 0;
+  for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) % 99991;
+  return h % 100;
+}
+
+function featuresFor(cityKey, hazardKey) {
+  const city = CITIES[cityKey];
+  const hz = HAZARDS[hazardKey];
+  const pat = SEV_PATTERN[hazardKey];
+  return city.places.map((p, i) => {
+    const sev = pat[i % pat.length];
+    const base = sev === 'high' ? 62 : sev === 'med' ? 38 : 16;
+    const v = base + (seeded(cityKey + hazardKey + p.name) % 22);
+    return { name: p.name, area: p.area, kind: p.kind, coords: p.coords, sev: sev, metric: hz.metric(v), v: v };
+  });
+}
+
+function statsFor(cityKey, hazardKey, feats) {
+  const city = CITIES[cityKey];
+  const hz = HAZARDS[hazardKey];
+  const peak = feats.reduce((a, f) => Math.max(a, f.v), 0);
+  const exposure = (city.pop * (0.06 + feats.filter(f => f.sev === 'high').length * 0.028)).toFixed(2);
+  const fourth = {
+    flood: (feats.length * 5.2 + (peak % 9)).toFixed(1),
+    heat: 6 + (seeded(cityKey) % 9),
+    dust: 18 + (seeded(cityKey + 'd') % 40),
+    coastal: 22 + (seeded(cityKey + 'c') % 38)
+  }[hazardKey];
+  const peakDisplay = {
+    flood: Math.round(18 + peak * 0.62),
+    heat: (38 + peak * 0.11).toFixed(1),
+    dust: Math.round(1000 - peak * 8.4),
+    coastal: (0.4 + peak * 0.017).toFixed(1)
+  }[hazardKey];
+  return [
+    [hz.statUnits[0][0], String(feats.length), hz.statUnits[0][1]],
+    [hz.statUnits[1][0], String(peakDisplay), hz.statUnits[1][1]],
+    [hz.statUnits[2][0], (exposure * 1000).toFixed(0) + 'k', hz.statUnits[2][1]],
+    [hz.statUnits[3][0], String(fourth), hz.statUnits[3][1]]
+  ];
+}
+
+let state = { city: 'dubai', hazard: 'flood', minSev: 'low', focus: null };
+
+const map = L.map('map', { scrollWheelZoom: true, zoomControl: false })
+  .setView(CITIES[state.city].center, CITIES[state.city].zoom);
+L.control.zoom({ position: 'topright' }).addTo(map);
+L.tileLayer('https://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+  maxZoom: 16,
+  attribution: 'Esri, HERE, Garmin, © OpenStreetMap contributors'
+}).addTo(map);
+
+const overlay = L.layerGroup().addTo(map);
+
+function visibleFeatures() {
+  return featuresFor(state.city, state.hazard)
+    .filter(f => SEV_ORDER[f.sev] >= SEV_ORDER[state.minSev]);
+}
+
+function drawMap() {
+  const h = HAZARDS[state.hazard];
+  overlay.clearLayers();
+  visibleFeatures().forEach(f => {
+    const color = h.colors[f.sev];
+    const isFocus = state.focus === f.name;
+    let layer;
+    if (f.kind === 'line') {
+      layer = L.polyline(f.coords, {
+        color: color, weight: f.sev === 'high' ? 9 : f.sev === 'med' ? 7 : 5,
+        opacity: isFocus ? 1 : 0.82, lineCap: 'round'
+      });
+    } else if (f.kind === 'zone') {
+      layer = L.polygon(f.coords, {
+        color: color, weight: isFocus ? 3 : 1.5, fillColor: color,
+        fillOpacity: isFocus ? 0.55 : 0.35
+      });
+    } else {
+      layer = L.circleMarker(f.coords, {
+        radius: isFocus ? 12 : 9, color: '#fff', weight: 2,
+        fillColor: color, fillOpacity: 1
+      });
+    }
+    layer.bindTooltip(f.name + ' — ' + f.metric, { direction: 'top', sticky: true });
+    layer.on('click', () => { state.focus = f.name; render(); });
+    layer.addTo(overlay);
+  });
+}
+
+function el(tag, style, text) {
+  const n = document.createElement(tag);
+  if (style) n.setAttribute('style', style);
+  if (text != null) n.textContent = text;
+  return n;
+}
+
+function renderChrome() {
+  const citySel = document.getElementById('city');
+  if (!citySel.options.length) {
+    Object.entries(CITIES).forEach(([k, v]) => {
+      const o = document.createElement('option');
+      o.value = k; o.textContent = v.label;
+      o.selected = (k === state.city);
+      citySel.appendChild(o);
+    });
+    citySel.value = state.city;
+    citySel.addEventListener('change', e => {
+      state.city = e.target.value; state.focus = null;
+      const c = CITIES[state.city];
+      map.setView(c.center, c.zoom);
+      render();
+    });
+  }
+
+  const hz = document.getElementById('hazards');
+  hz.innerHTML = '';
+  Object.entries(HAZARDS).forEach(([k, v]) => {
+    const b = el('button', null, v.label);
+    b.className = 'chip' + (state.hazard === k ? ' on' : '');
+    b.addEventListener('click', () => { state.hazard = k; state.focus = null; render(); });
+    hz.appendChild(b);
+  });
+
+  const sc = document.getElementById('sevChips');
+  sc.innerHTML = '';
+  ['low', 'med', 'high'].forEach(k => {
+    const b = el('button', null, SEV_LABEL[k]);
+    b.className = 'chip' + (state.minSev === k ? ' on' : '');
+    b.addEventListener('click', () => { state.minSev = k; render(); });
+    sc.appendChild(b);
+  });
+}
+
+function render() {
+  const h = HAZARDS[state.hazard];
+  const cityLabel = CITIES[state.city].label.split(',')[0];
+  renderChrome();
+
+  document.getElementById('mapTitle').textContent = h.title;
+  document.getElementById('mapStamp').textContent = h.stamp;
+  document.getElementById('summary').textContent = h.summary(cityLabel);
+
+  const lg = document.getElementById('legend');
+  lg.innerHTML = '';
+  h.legend.forEach(([sev, label]) => {
+    const r = el('div', 'display: flex; align-items: center; gap: 8px;');
+    r.appendChild(el('span', 'width: 14px; height: 6px; border-radius: 3px; flex: 0 0 auto; background: ' + h.colors[sev] + ';'));
+    r.appendChild(el('span', 'font-size: 11.5px; font-weight: 300; color: #454949; white-space: nowrap;', label));
+    lg.appendChild(r);
+  });
+
+  const feats = visibleFeatures();
+
+  const st = document.getElementById('stats');
+  st.innerHTML = '';
+  statsFor(state.city, state.hazard, feats).forEach(([label, value, unit]) => {
+    const c = el('div', 'min-width: 0; background: #fff; border-radius: 18px; padding: 18px; box-shadow: 0 2px 16px rgba(0,0,0,.05); display: flex; flex-direction: column; gap: 12px;');
+    c.appendChild(el('span', 'font-size: 12.5px; font-weight: 300; color: #6B7070; line-height: 1.4;', label));
+    const v = el('div', 'display: flex; align-items: baseline; gap: 5px;');
+    const num = el('span', 'font-size: 27px; font-weight: 300; letter-spacing: -.03em;', value);
+    num.className = 'mono';
+    const u = el('span', 'font-size: 11px; color: #6B7070;', unit);
+    u.className = 'mono';
+    v.appendChild(num); v.appendChild(u);
+    c.appendChild(v);
+    st.appendChild(c);
+  });
+
+  const list = document.getElementById('list');
+  list.innerHTML = '';
+  feats.forEach(f => {
+    const r = el('div');
+    r.className = 'row' + (state.focus === f.name ? ' on' : '');
+    r.tabIndex = 0;
+    r.appendChild(el('span', 'width: 10px; height: 34px; border-radius: 5px; flex: 0 0 auto; background: ' + h.colors[f.sev] + ';'));
+    const mid = el('div', 'min-width: 0; display: flex; flex-direction: column; gap: 3px; flex: 1;');
+    mid.appendChild(el('span', 'font-size: 13.5px; font-weight: 400;', f.name));
+    const meta = el('span', 'font-size: 11px; color: #6B7070;', f.area + ' · ' + f.metric);
+    meta.className = 'mono';
+    mid.appendChild(meta);
+    r.appendChild(mid);
+    const kind = el('span', 'font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: #6B7070; white-space: nowrap;',
+      f.kind === 'line' ? 'Street' : f.kind === 'zone' ? 'Area' : 'Asset');
+    kind.className = 'mono';
+    r.appendChild(kind);
+    const go = () => {
+      state.focus = f.name;
+      if (f.kind === 'point') map.setView(f.coords, 15);
+      else map.fitBounds(L.latLngBounds(f.coords).pad(0.6));
+      render();
+    };
+    r.addEventListener('click', go);
+    r.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });
+    list.appendChild(r);
+  });
+
+  document.getElementById('listCount').textContent = feats.length + ' of ' + CITIES[state.city].places.length;
+  document.getElementById('shownCount').textContent = feats.length + ' features shown';
+
+  drawMap();
+}
+
+render();
+
+// the map box is sized by aspect-ratio inside a flex column, so wait for a real size
+let sized = false;
+new ResizeObserver(entries => {
+  const r = entries[0].contentRect;
+  if (r.width > 0 && r.height > 0) {
+    map.invalidateSize();
+    if (!sized) { sized = true; map.setView(CITIES[state.city].center, CITIES[state.city].zoom); }
+  }
+}).observe(document.getElementById('map'));
+</script>
+</body>
+</html>

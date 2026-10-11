@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #F5F7F7; color: #545454; font-family: 'Lexend', sans-serif; -webkit-font-smoothing: antialiased; }
+  a { color: #1E7F4E; text-decoration: none; }
+  a:hover { color: #1E7F4E; }
+  ::selection { background: rgba(53,180,118,.22); }
+  input::placeholder { color: #A8B0B0; }
+</style>
+</helmet>
+
+<div style="min-height: 100vh; display: flex; flex-direction: column;">
+
+  <header style="display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 20px 32px; flex-wrap: wrap;">
+    <div style="display: flex; align-items: center; gap: 28px;">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <div style="width: 34px; height: 34px; border-radius: 10px; background: #D5F8FF; display: flex; align-items: center; justify-content: center;"><svg width="22" height="22" viewBox="0 0 100 100"><polygon points="50,8 90,30 50,52 10,30" fill="#41DDFF"></polygon><polygon points="10,30 50,52 50,94 10,72" fill="#35B476"></polygon><polygon points="50,52 90,30 90,72 50,94" fill="#545454"></polygon></svg></div>
+        <span style="font-size: 17px; font-weight: 400; letter-spacing: -.02em;">Dimensions<sup style="font-size: .5em; top: -.6em; position: relative;">3</sup></span>
+      </div>
+      <nav style="display: flex; gap: 22px; font-size: 14px; font-weight: 300; color: #6B7070;">
+        <span style="color: #545454; font-weight: 400;">Search</span>
+        <a href="analysis.html" style="color: #6B7070;">Analysis</a>
+        <a href="timeline.html" style="color: #6B7070;">Timeline</a>
+        <a href="city-map.html" style="color: #6B7070;">City map</a>
+        <a href="alerts.html" style="color: #6B7070;">Alerts</a>
+        <a href="report.html" style="color: #6B7070;">Report</a>
+      </nav>
+    </div>
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #6B7070; font-feature-settings: 'tnum';">1 284 credits</span>
+      <div style="width: 34px; height: 34px; border-radius: 999px; background: #DDE3E3;"></div>
+    </div>
+  </header>
+
+  <main style="flex: 1; width: 100%; max-width: 1280px; margin: 0 auto; padding: 24px 32px 96px; box-sizing: border-box; display: flex; flex-direction: column; gap: 28px;">
+
+    <sc-if value="{{ isChoose }}" hint-placeholder-val="{{ true }}">
+      <section data-screen-label="Start options" style="display: flex; flex-direction: column; gap: 28px; padding-top: 24px;">
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: .2em; text-transform: uppercase; color: #1E7F4E;">Imagery search</div>
+          <h1 style="margin: 0; font-size: 40px; font-weight: 300; letter-spacing: -.03em; line-height: 1.1;">How do you want to start?</h1>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px;">
+          <button onClick="{{ pickUpload }}" style="text-align: left; font-family: 'Lexend', sans-serif; color: #545454; background: #fff; border: 1px solid #E9EEEE; border-radius: 28px; padding: 28px; box-shadow: 0 2px 24px rgba(84,84,84,.05); cursor: pointer; display: flex; flex-direction: column; gap: 18px; min-height: 260px;" style-hover="border-color: #1E7F4E; box-shadow: 0 10px 34px rgba(53,180,118,.14)">
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #6B7070;">01</span>
+            <span style="width: 52px; height: 52px; border-radius: 16px; background: #D5F8FF; display: flex; align-items: center; justify-content: center;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#545454" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"></path></svg></span>
+            <span style="font-size: 22px; font-weight: 400; letter-spacing: -.01em;">Upload data</span>
+            <span style="font-size: 14px; font-weight: 300; color: #454949; line-height: 1.6;">Bring your own imagery in the Dimensions³ package format and turn it into packets.</span>
+            <span style="margin-top: auto; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #1E7F4E;">Upload →</span>
+          </button>
+          <button onClick="{{ pickCurrent }}" style="text-align: left; font-family: 'Lexend', sans-serif; color: #545454; background: #fff; border: 1px solid #E9EEEE; border-radius: 28px; padding: 28px; box-shadow: 0 2px 24px rgba(84,84,84,.05); cursor: pointer; display: flex; flex-direction: column; gap: 18px; min-height: 260px;" style-hover="border-color: #1E7F4E; box-shadow: 0 10px 34px rgba(53,180,118,.14)">
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #6B7070;">02</span>
+            <span style="width: 52px; height: 52px; border-radius: 16px; background: #D5F8FF; display: flex; align-items: center; justify-content: center;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#545454" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 5-9 5-9-5zM3 13l9 5 9-5"></path></svg></span>
+            <span style="font-size: 22px; font-weight: 400; letter-spacing: -.01em;">Use the current data</span>
+            <span style="font-size: 14px; font-weight: 300; color: #454949; line-height: 1.6;">Search the existing archive and build packets directly.</span>
+            <span style="margin-top: auto; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #1E7F4E;">Build packets →</span>
+          </button>
+          <button onClick="{{ pickRfi }}" style="text-align: left; font-family: 'Lexend', sans-serif; color: #545454; background: #fff; border: 1px solid #E9EEEE; border-radius: 28px; padding: 28px; box-shadow: 0 2px 24px rgba(84,84,84,.05); cursor: pointer; display: flex; flex-direction: column; gap: 18px; min-height: 260px;" style-hover="border-color: #1E7F4E; box-shadow: 0 10px 34px rgba(53,180,118,.14)">
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #6B7070;">03</span>
+            <span style="width: 52px; height: 52px; border-radius: 16px; background: #D5F8FF; display: flex; align-items: center; justify-content: center;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#545454" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10l6-6 4 4-6 6zM10 14l3 3M14 8l3 3M15 15l5 5M3 21l4-4"></path></svg></span>
+            <span style="font-size: 22px; font-weight: 400; letter-spacing: -.01em;">Request for Imagery (RFI)</span>
+            <span style="font-size: 14px; font-weight: 300; color: #454949; line-height: 1.6;">Request a new collection and choose the satellite. The request goes to the Mission Planning center.</span>
+            <span style="margin-top: auto; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #1E7F4E;">Start RFI →</span>
+          </button>
+        </div>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ hasMode }}" hint-placeholder-val="{{ false }}">
+      <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+        <button onClick="{{ pickNone }}" style="font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: #1E7F4E; background: transparent; border: none; cursor: pointer; padding: 8px 0; min-height: 40px;">← Start options</button>
+        <div style="display: flex; background: #fff; border-radius: 14px; padding: 4px; box-shadow: 0 2px 12px rgba(84,84,84,.05); margin-left: auto; flex-wrap: wrap;">
+          <sc-for list="{{ modeTabs }}" as="mt" hint-placeholder-count="3">
+            <button onClick="{{ mt.onPick }}" style="font-family: 'Lexend', sans-serif; font-size: 13px; color: {{ mt.fg }}; background: {{ mt.bg }}; border: none; border-radius: 10px; padding: 0 16px; min-height: 40px; cursor: pointer; white-space: nowrap;">{{ mt.label }}</button>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isUpload }}" hint-placeholder-val="{{ false }}">
+      <section data-screen-label="Upload data" style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start;">
+        <div style="flex: 3 1 460px; min-width: 0; background: #fff; border-radius: 28px; padding: 30px; box-shadow: 0 2px 24px rgba(84,84,84,.05); display: flex; flex-direction: column; gap: 22px;">
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: .2em; text-transform: uppercase; color: #1E7F4E;">Upload data</span>
+            <h1 style="margin: 0; font-size: 32px; font-weight: 300; letter-spacing: -.03em;">Upload your imagery</h1>
+            <span style="font-size: 14px; font-weight: 300; color: #454949;">Choose the data type first. Files are checked against the formats used for that kind of data.</span>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <span style="font-size: 14px; font-weight: 500;">Data type</span>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px;">
+              <sc-for list="{{ upTypes }}" as="ut" hint-placeholder-count="2">
+                <button onClick="{{ ut.onPick }}" style="text-align: left; font-family: 'Lexend', sans-serif; color: #545454; background: {{ ut.bg }}; border: 1px solid {{ ut.border }}; border-radius: 16px; padding: 14px 16px; cursor: pointer; display: flex; flex-direction: column; gap: 4px; min-height: 64px;">
+                  <span style="font-size: 15px;">{{ ut.label }}</span>
+                  <span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #6B7070;">{{ ut.sub }}</span>
+                </button>
+              </sc-for>
+            </div>
+          </div>
+          <div onClick="{{ openPicker }}" onDragOver="{{ onDragOver }}" onDragLeave="{{ onDragLeave }}" onDrop="{{ onDrop }}" role="button" tabindex="0" style="border: 2px dashed {{ dropBorder }}; background: {{ dropBg }}; border-radius: 22px; padding: 44px 24px; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; cursor: pointer;">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#35B476" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"></path></svg>
+            <span style="font-size: 16px; font-weight: 400;">Drop files here, or click to browse</span>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #6B7070;">{{ acceptLine }}</span>
+            <input ref="{{ fileRef }}" type="file" multiple accept="{{ acceptAttr }}" onChange="{{ onFiles }}" style="display: none;">
+          </div>
+          <sc-if value="{{ hasFiles }}" hint-placeholder-val="{{ false }}">
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <sc-for list="{{ files }}" as="fl" hint-placeholder-count="2">
+                <div style="display: flex; align-items: center; gap: 12px; background: #F5F7F7; border-radius: 14px; padding: 12px 14px;">
+                  <span style="width: 8px; height: 8px; border-radius: 999px; background: {{ fl.dot }}; flex: 0 0 auto;"></span>
+                  <div style="min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 2px;">
+                    <span style="font-size: 13.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ fl.name }}</span>
+                    <span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #6B7070;">{{ fl.size }} · {{ fl.kind }}{{ fl.hint }}</span>
+                  </div>
+                  <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: {{ fl.statusFg }}; white-space: nowrap;">{{ fl.status }}</span>
+                  <button onClick="{{ fl.onRemove }}" aria-label="Remove file" style="width: 32px; height: 32px; border-radius: 999px; border: none; background: transparent; color: #6B7070; cursor: pointer; font-size: 16px;">×</button>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+          <label style="display: flex; flex-direction: column; gap: 10px;">
+            <span style="font-size: 14px; font-weight: 500;">Packet name</span>
+            <input type="text" value="{{ packetName }}" onChange="{{ onPacketName }}" placeholder="e.g. Al Quoz flood — hyperspectral, April 2026" style="font-family: 'Lexend', sans-serif; font-size: 14px; font-weight: 300; color: #545454; background: #EEF2F2; border: 1px solid {{ packetNameBorder }}; border-radius: 14px; padding: 0 16px; min-height: 50px; outline: none;">
+          </label>
+          <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
+            <button onClick="{{ buildFromUpload }}" style="font-family: 'Lexend', sans-serif; font-size: 15px; font-weight: 500; color: #fff; background: {{ uploadBtnBg }}; border: none; border-radius: 999px; padding: 0 28px; min-height: 52px; cursor: {{ uploadBtnCursor }}; white-space: nowrap;">Build packets from upload</button>
+            <span style="font-size: 12.5px; font-weight: 300; color: {{ uploadStatusFg }};">{{ uploadStatus }}</span>
+          </div>
+        </div>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ isRfi }}" hint-placeholder-val="{{ false }}">
+      <section data-screen-label="Request for Imagery" style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start;">
+        <div style="flex: 3 1 520px; min-width: 0; background: #fff; border-radius: 28px; padding: 30px; box-shadow: 0 2px 24px rgba(84,84,84,.05); display: flex; flex-direction: column; gap: 24px;">
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: .2em; text-transform: uppercase; color: #1E7F4E;">Customer RFI form</span>
+            <h1 style="margin: 0; font-size: 32px; font-weight: 300; letter-spacing: -.03em;">Request for Imagery (RFI)</h1>
+            <span style="font-size: 14px; font-weight: 300; color: #454949; line-height: 1.6; text-wrap: pretty;">To properly and accurately plan an imagery collection, a series of questions must be addressed and documented in a Customer RFI form:</span>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <span style="font-size: 14px; font-weight: 500;">Satellite <span style="font-weight: 300; color: #6B7070;">— which satellite should collect</span></span>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px;">
+              <sc-for list="{{ satOpts }}" as="so" hint-placeholder-count="6">
+                <button onClick="{{ so.onPick }}" style="text-align: left; font-family: 'Lexend', sans-serif; color: #545454; background: {{ so.bg }}; border: 1px solid {{ so.border }}; border-radius: 14px; padding: 12px 14px; cursor: pointer; display: flex; flex-direction: column; gap: 3px; min-height: 60px;">
+                  <span style="font-size: 14px;">{{ so.label }}</span>
+                  <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #6B7070;">{{ so.payload }}</span>
+                </button>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <span style="font-size: 14px; font-weight: 500;">Purpose <span style="font-weight: 300; color: #6B7070;">— targeting, analysis, or change detection</span></span>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <sc-for list="{{ purposeOpts }}" as="po" hint-placeholder-count="3">
+                <button onClick="{{ po.onPick }}" style="font-family: 'Lexend', sans-serif; font-size: 13.5px; font-weight: 300; color: {{ po.fg }}; background: {{ po.bg }}; border: 1px solid {{ po.border }}; border-radius: 999px; padding: 0 18px; min-height: 44px; cursor: pointer;">{{ po.label }}</button>
+              </sc-for>
+            </div>
+          </div>
+
+          <label style="display: flex; flex-direction: column; gap: 10px;">
+            <span style="font-size: 14px; font-weight: 500;">Location <span style="font-weight: 300; color: #6B7070;">— coordinates or area of interest</span></span>
+            <input type="text" value="{{ rfi.location }}" onChange="{{ onRfi.location }}" placeholder="25.137, 55.231 — or an area name, or a WKT polygon" style="font-family: 'Lexend', sans-serif; font-size: 14px; font-weight: 300; color: #545454; background: #EEF2F2; border: 1px solid {{ locBorder }}; border-radius: 14px; padding: 0 16px; min-height: 50px; outline: none;">
+          </label>
+
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <span style="font-size: 14px; font-weight: 500;">Timing <span style="font-weight: 300; color: #6B7070;">— when and how urgently required</span></span>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+              <div style="display: flex; align-items: center; gap: 8px; background: #EEF2F2; border-radius: 14px; padding: 0 14px; min-height: 48px; flex: 1 1 260px;">
+                <input type="date" value="{{ rfi.from }}" onChange="{{ onRfi.from }}" aria-label="Collection window start" style="flex: 1; min-width: 0; border: none; background: transparent; outline: none; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #545454;">
+                <span style="color: #A8B0B0;">→</span>
+                <input type="date" value="{{ rfi.to }}" onChange="{{ onRfi.to }}" aria-label="Collection window end" style="flex: 1; min-width: 0; border: none; background: transparent; outline: none; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #545454;">
+              </div>
+              <div style="display: flex; background: #EEF2F2; border-radius: 14px; padding: 4px;">
+                <sc-for list="{{ urgencyOpts }}" as="uo" hint-placeholder-count="3">
+                  <button onClick="{{ uo.onPick }}" style="font-family: 'Lexend', sans-serif; font-size: 13px; color: {{ uo.fg }}; background: {{ uo.bg }}; border: none; border-radius: 10px; padding: 0 14px; min-height: 40px; cursor: pointer;">{{ uo.label }}</button>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <span style="font-size: 14px; font-weight: 500;">Area size <span style="font-weight: 300; color: #6B7070;">— extent and regularity of the area</span></span>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+              <div style="display: flex; align-items: center; gap: 8px; background: #EEF2F2; border-radius: 14px; padding: 0 14px; min-height: 48px;">
+                <input type="number" min="1" value="{{ rfi.area }}" onChange="{{ onRfi.area }}" aria-label="Area in square kilometres" style="width: 90px; border: none; background: transparent; outline: none; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #545454;">
+                <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #6B7070;">km²</span>
+              </div>
+              <div style="display: flex; background: #EEF2F2; border-radius: 14px; padding: 4px; flex-wrap: wrap;">
+                <sc-for list="{{ regularityOpts }}" as="ro" hint-placeholder-count="3">
+                  <button onClick="{{ ro.onPick }}" style="font-family: 'Lexend', sans-serif; font-size: 13px; color: {{ ro.fg }}; background: {{ ro.bg }}; border: none; border-radius: 10px; padding: 0 14px; min-height: 40px; cursor: pointer; white-space: nowrap;">{{ ro.label }}</button>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <span style="font-size: 14px; font-weight: 500;">Data type <span style="font-weight: 300; color: #6B7070;">— depends on the mission payload</span></span>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <sc-for list="{{ dataTypeOpts }}" as="dt" hint-placeholder-count="4">
+                <button onClick="{{ dt.onPick }}" style="font-family: 'Lexend', sans-serif; font-size: 13.5px; font-weight: 300; color: {{ dt.fg }}; background: {{ dt.bg }}; border: 1px solid {{ dt.border }}; border-radius: 999px; padding: 0 18px; min-height: 44px; cursor: {{ dt.cursor }}; opacity: {{ dt.opacity }};">{{ dt.label }}</button>
+              </sc-for>
+            </div>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #6B7070;">{{ dataTypeNote }}</span>
+          </div>
+
+          <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+            <label style="flex: 1 1 200px; min-width: 0; display: flex; flex-direction: column; gap: 10px;">
+              <span style="font-size: 14px; font-weight: 500;">Resolution <span style="font-weight: 300; color: #6B7070;">— required GSD</span></span>
+              <div style="display: flex; align-items: center; gap: 8px; background: #EEF2F2; border-radius: 14px; padding: 0 14px; min-height: 48px;">
+                <input type="number" min="0.1" step="0.1" value="{{ rfi.gsd }}" onChange="{{ onRfi.gsd }}" style="flex: 1; min-width: 0; border: none; background: transparent; outline: none; font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #545454;">
+                <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #6B7070;">m GSD</span>
+              </div>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: {{ gsdNoteFg }};">{{ gsdNote }}</span>
+            </label>
+            <div style="flex: 1 1 200px; min-width: 0; display: flex; flex-direction: column; gap: 10px;">
+              <span style="font-size: 14px; font-weight: 500;">Viewing angle <span style="font-weight: 300; color: #6B7070;">— nadir or oblique</span></span>
+              <div style="display: flex; background: #EEF2F2; border-radius: 14px; padding: 4px;">
+                <sc-for list="{{ angleOpts }}" as="ao" hint-placeholder-count="2">
+                  <button onClick="{{ ao.onPick }}" style="flex: 1; font-family: 'Lexend', sans-serif; font-size: 13px; color: {{ ao.fg }}; background: {{ ao.bg }}; border: none; border-radius: 10px; min-height: 40px; cursor: pointer;">{{ ao.label }}</button>
+                </sc-for>
+              </div>
+              <sc-if value="{{ isOblique }}" hint-placeholder-val="{{ false }}">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                  <input type="range" min="5" max="45" value="{{ rfi.offNadir }}" onChange="{{ onRfi.offNadir }}" aria-label="Maximum off-nadir angle" style="flex: 1; accent-color: #1E7F4E;">
+                  <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; white-space: nowrap;">≤ {{ rfi.offNadir }}° off-nadir</span>
+                </div>
+              </sc-if>
+            </div>
+          </div>
+
+          <label style="display: flex; flex-direction: column; gap: 10px;">
+            <span style="font-size: 14px; font-weight: 500;">Special requirements <span style="font-weight: 300; color: #6B7070;">— any additional conditions</span></span>
+            <textarea value="{{ rfi.special }}" onChange="{{ onRfi.special }}" rows="3" placeholder="e.g. cloud cover under 10%, sun elevation above 30°, stereo pair, delivery format" style="font-family: 'Lexend', sans-serif; font-size: 14px; font-weight: 300; color: #545454; background: #EEF2F2; border: 1px solid transparent; border-radius: 14px; padding: 14px 16px; outline: none; resize: vertical;"></textarea>
+          </label>
+
+          <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
+            <button onClick="{{ submitRfi }}" style="font-family: 'Lexend', sans-serif; font-size: 15px; font-weight: 500; color: #fff; background: #258A55; border: none; border-radius: 999px; padding: 0 28px; min-height: 52px; cursor: pointer; white-space: nowrap;" style-hover="background: #1E7049">Send to Mission Planning</button>
+            <span style="font-size: 12.5px; font-weight: 300; color: #1E7F4E;">{{ rfiError }}</span>
+          </div>
+        </div>
+
+        <aside style="flex: 2 1 320px; min-width: 0; display: flex; flex-direction: column; gap: 16px;">
+          <sc-if value="{{ rfiSent }}" hint-placeholder-val="{{ false }}">
+            <div style="background: #545454; color: #D5F8FF; border-radius: 28px; padding: 26px; display: flex; flex-direction: column; gap: 12px;">
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase; color: #41DDFF;">RFI received · demo</span>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 22px;">{{ rfiId }}</span>
+              <span style="font-size: 14px; font-weight: 300; line-height: 1.6;">Upon receipt, Mission Planning begins within the Mission Planning Toolset.</span>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #C9D1D1;">Routed to {{ rfiCenter }}</span>
+            </div>
+          </sc-if>
+          <div style="background: #D5F8FF; border-radius: 28px; padding: 26px; display: flex; flex-direction: column; gap: 4px;">
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase; color: #545454; margin-bottom: 10px;">Request summary</span>
+            <sc-for list="{{ rfiSummary }}" as="rs" hint-placeholder-count="8">
+              <div style="display: flex; justify-content: space-between; gap: 14px; padding: 9px 0; border-bottom: 1px solid #E1E6E6;">
+                <span style="font-size: 12.5px; font-weight: 300; color: #6B7070;">{{ rs.label }}</span>
+                <span style="font-size: 12.5px; color: #545454; text-align: right; min-width: 0; overflow-wrap: anywhere;">{{ rs.value }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </aside>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ isCurrent }}" hint-placeholder-val="{{ false }}">
+    <section style="background: #fff; border-radius: 28px; padding: 32px; box-shadow: 0 2px 24px rgba(0,0,0,.05); display: flex; flex-direction: column; gap: 26px;">
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: .2em; text-transform: uppercase; color: #1E7F4E;">Imagery search</div>
+        <h1 style="margin: 0; font-size: 34px; font-weight: 300; letter-spacing: -.03em; line-height: 1.1;">Describe what you need to see.</h1>
+      </div>
+
+      <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+        <div style="flex: 1 1 340px; min-width: 0; display: flex; align-items: center; gap: 12px; background: #EEF2F2; border: 1px solid transparent; border-radius: 999px; padding: 0 20px; min-height: 56px;" style-focus-within="border-color: #1E7F4E; background: #fff">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6B7070" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4.5-4.5"></path></svg>
+          <input type="text" value="{{ query }}" onChange="{{ onQuery }}" placeholder="Flash flooding in Dubai after heavy rainfall" style="flex: 1; min-width: 0; border: none; background: transparent; outline: none; font-family: 'Lexend', sans-serif; font-size: 15px; font-weight: 300; color: #545454;">
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #A8B0B0; white-space: nowrap;">⌘K</span>
+        </div>
+        <button onClick="{{ runSearch }}" style="font-family: 'Lexend', sans-serif; font-size: 15px; font-weight: 500; color: #fff; background: #258A55; border: none; border-radius: 999px; padding: 0 30px; min-height: 56px; cursor: pointer; white-space: nowrap;" style-hover="background: #1E7049">Build packets</button>
+      </div>
+
+      <div style="height: 1px; background: rgba(0,0,0,.08);"></div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 20px;">
+        <div style="min-width: 0; display: flex; flex-direction: column; gap: 10px;">
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: #6B7070;">Date range</span>
+          <div style="display: flex; align-items: center; gap: 8px; background: #EEF2F2; border-radius: 14px; padding: 0 14px; min-height: 48px;">
+            <input type="date" value="2024-03-01" style="flex: 1; min-width: 0; border: none; background: transparent; outline: none; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #545454;">
+            <span style="color: #A8B0B0; font-size: 12px;">→</span>
+            <input type="date" value="2024-09-30" style="flex: 1; min-width: 0; border: none; background: transparent; outline: none; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #545454;">
+          </div>
+        </div>
+        <div style="min-width: 0; display: flex; flex-direction: column; gap: 10px;">
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: #6B7070;">Season</span>
+          <div style="display: flex; background: #EEF2F2; border-radius: 14px; padding: 4px; min-height: 48px; box-sizing: border-box;">
+            <sc-for list="{{ seasons }}" as="s" hint-placeholder-count="4">
+              <div onClick="{{ s.onPick }}" style="flex: 1; display: flex; align-items: center; justify-content: center; border-radius: 11px; font-size: 12.5px; cursor: pointer; user-select: none; background: {{ s.bg }}; color: {{ s.fg }};">{{ s.label }}</div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="min-width: 0; display: flex; flex-direction: column; gap: 10px;">
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: #6B7070;">Surface</span>
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; background: #EEF2F2; border-radius: 14px; padding: 0 16px; min-height: 48px; cursor: pointer;">
+            <span style="font-size: 13.5px; font-weight: 300;">Water, vegetation</span>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #1E7F4E;">2</span>
+          </div>
+        </div>
+        <div style="min-width: 0; display: flex; flex-direction: column; gap: 10px;">
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: #6B7070;">Max cloud cover</span>
+          <div style="display: flex; align-items: center; gap: 14px; background: #EEF2F2; border-radius: 14px; padding: 0 16px; min-height: 48px;">
+            <input type="range" min="0" max="100" value="{{ cloud }}" onChange="{{ onCloud }}" style="flex: 1; min-width: 0; accent-color: #1E7F4E;">
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; font-feature-settings: 'tnum'; white-space: nowrap;">{{ cloud }}%</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: #6B7070; margin-right: 4px;">More</span>
+        <sc-for list="{{ extraFilters }}" as="f" hint-placeholder-count="6">
+          <div onClick="{{ f.onToggle }}" style="display: flex; align-items: center; gap: 7px; border: 1px solid {{ f.border }}; background: {{ f.bg }}; color: {{ f.fg }}; border-radius: 999px; padding: 8px 15px; font-size: 13px; font-weight: 300; cursor: pointer; user-select: none;">
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px;">{{ f.sign }}</span>{{ f.label }}
+          </div>
+        </sc-for>
+      </div>
+    </section>
+    </sc-if>
+
+    <sc-if value="{{ isBrowsing }}" hint-placeholder-val="{{ false }}">
+      <section style="display: flex; flex-direction: column; gap: 20px;">
+        <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 20px; flex-wrap: wrap; padding: 0 8px;">
+          <div style="display: flex; align-items: baseline; gap: 14px;">
+            <h2 style="margin: 0; font-size: 21px; font-weight: 400; letter-spacing: -.02em;">Packets</h2>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: #6B7070; font-feature-settings: 'tnum';">6 packets · 4 318 scenes assembled</span>
+          </div>
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #6B7070;">Ranked by relevance</span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
+          <sc-for list="{{ packets }}" as="p" hint-placeholder-count="6">
+            <div onClick="{{ p.onOpen }}" style="min-width: 0; background: #fff; border-radius: 24px; padding: 18px; box-shadow: 0 2px 20px rgba(0,0,0,.05); cursor: pointer; display: flex; flex-direction: column; gap: 16px;" style-hover="box-shadow: 0 8px 30px rgba(53,180,118,.14)">
+              <div style="position: relative; height: 150px; border-radius: 16px; overflow: hidden; background: #E9E9E9;">
+                <div style="position: absolute; inset: 0; background-image: linear-gradient(rgba(0,0,0,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,.05) 1px, transparent 1px); background-size: 26px 26px;"></div>
+                <div style="position: absolute; left: 14px; top: 16px; right: 60px; bottom: 26px; background: #DEDEDE; border-radius: 10px; transform: rotate(-3deg); box-shadow: 0 2px 10px rgba(0,0,0,.08);"></div>
+                <div style="position: absolute; left: 32px; top: 12px; right: 40px; bottom: 22px; background: #D2D2D2; border-radius: 10px; transform: rotate(2deg); box-shadow: 0 2px 10px rgba(0,0,0,.08);"></div>
+                <div style="position: absolute; left: 48px; top: 20px; right: 16px; bottom: 14px; background: #C6C6C6; border-radius: 10px; box-shadow: 0 3px 14px rgba(0,0,0,.1); display: flex; align-items: flex-end; padding: 10px;">
+                  <span style="font-family: 'JetBrains Mono', monospace; font-size: 9.5px; color: #555;">{{ p.sample }}</span>
+                </div>
+                <div style="position: absolute; right: 12px; top: 12px; background: rgba(255,255,255,.94); border-radius: 999px; padding: 5px 11px; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-feature-settings: 'tnum';">{{ p.count }}</div>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 8px; padding: 0 4px;">
+                <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: #6B7070;">{{ p.kicker }}</div>
+                <div style="font-size: 18px; font-weight: 400; letter-spacing: -.02em;">{{ p.title }}</div>
+                <div style="font-size: 13px; font-weight: 300; color: #454949; line-height: 1.6; text-wrap: pretty;">{{ p.summary }}</div>
+              </div>
+              <div style="height: 1px; background: rgba(0,0,0,.08); margin: 0 4px;"></div>
+              <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 0 4px;">
+                <sc-for list="{{ p.tags }}" as="t" hint-placeholder-count="3">
+                  <span style="border: 1px solid rgba(0,0,0,.12); border-radius: 999px; padding: 5px 12px; font-size: 11.5px; font-weight: 300; color: #454949;">{{ t }}</span>
+                </sc-for>
+                <span style="margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #1E7F4E;">Open →</span>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ isOpen }}" hint-placeholder-val="{{ false }}">
+      <section style="display: flex; flex-direction: column; gap: 20px;">
+        <div style="background: #fff; border-radius: 24px; padding: 26px 28px; box-shadow: 0 2px 20px rgba(0,0,0,.05); display: flex; flex-direction: column; gap: 22px;">
+          <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; flex-wrap: wrap;">
+            <div style="display: flex; flex-direction: column; gap: 8px; min-width: 0;">
+              <div onClick="{{ backToPackets }}" style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #1E7F4E; cursor: pointer;">← All packets</div>
+              <h2 style="margin: 0; font-size: 26px; font-weight: 300; letter-spacing: -.025em;">{{ openTitle }}</h2>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: #6B7070; font-feature-settings: 'tnum';">{{ openMeta }}</span>
+            </div>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+              <button onClick="{{ selectAll }}" style="font-family: 'Lexend', sans-serif; font-size: 13.5px; font-weight: 400; color: #545454; background: transparent; border: 1px solid rgba(0,0,0,.15); border-radius: 999px; padding: 0 20px; min-height: 44px; cursor: pointer;" style-hover="border-color: #1E7F4E; color: #1E7F4E">Select all</button>
+              <button onClick="{{ clearAll }}" style="font-family: 'Lexend', sans-serif; font-size: 13.5px; font-weight: 400; color: #6B7070; background: transparent; border: none; border-radius: 999px; padding: 0 16px; min-height: 44px; cursor: pointer;" style-hover="color: #545454">Clear</button>
+            </div>
+          </div>
+
+          <div style="height: 1px; background: rgba(0,0,0,.08);"></div>
+
+          <div style="display: flex; flex-direction: column; gap: 18px;">
+            <sc-for list="{{ groups }}" as="g" hint-placeholder-count="3">
+              <div style="display: flex; gap: 18px; align-items: baseline; flex-wrap: wrap;">
+                <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: #6B7070; flex: 0 0 120px;">{{ g.label }}</span>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap; flex: 1; min-width: 0;">
+                  <sc-for list="{{ g.opts }}" as="o" hint-placeholder-count="4">
+                    <div onClick="{{ o.onToggle }}" style="display: flex; align-items: center; gap: 9px; border: 1px solid {{ o.border }}; background: {{ o.bg }}; color: {{ o.fg }}; border-radius: 999px; padding: 8px 15px; font-size: 13px; font-weight: 300; cursor: pointer; user-select: none;">
+                      {{ o.label }}<span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; opacity: .7; font-feature-settings: 'tnum';">{{ o.n }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(176px, 1fr)); gap: 14px;">
+          <sc-for list="{{ scenes }}" as="s" hint-placeholder-count="12">
+            <div onClick="{{ s.onToggle }}" style="min-width: 0; background: #fff; border-radius: 18px; padding: 8px; cursor: pointer; box-shadow: {{ s.shadow }}; outline: {{ s.ring }}; outline-offset: -1px; display: flex; flex-direction: column; gap: 8px;">
+              <div style="position: relative; aspect-ratio: 4 / 3; border-radius: 12px; overflow: hidden; background: {{ s.tile }};">
+                <div style="position: absolute; inset: 0; background-image: linear-gradient(rgba(0,0,0,.06) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,.06) 1px, transparent 1px); background-size: 22px 22px;"></div>
+                <div style="position: absolute; left: 8px; bottom: 8px; font-family: 'JetBrains Mono', monospace; font-size: 9px; color: #4a4a4a; background: rgba(255,255,255,.8); border-radius: 5px; padding: 2px 5px;">{{ s.band }}</div>
+                <div style="position: absolute; right: 8px; top: 8px; width: 22px; height: 22px; border-radius: 999px; border: 1px solid {{ s.markBorder }}; background: {{ s.markBg }}; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 12px; line-height: 1;">{{ s.mark }}</div>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 0 4px;">
+                <span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; font-feature-settings: 'tnum';">{{ s.date }}</span>
+                <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #6B7070;">{{ s.cloudPct }}</span>
+              </div>
+              <div style="display: flex; flex-wrap: wrap; gap: 5px; padding: 0 4px 4px;">
+                <sc-for list="{{ s.keywords }}" as="k" hint-placeholder-count="3">
+                  <span style="display: inline-flex; align-items: center; gap: 4px; background: {{ k.bg }}; color: {{ k.fg }}; border-radius: 7px; padding: 3px 7px 3px 5px; font-size: 10.5px; font-weight: 300; white-space: nowrap;">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="{{ k.fg }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="{{ k.icon }}"></path></svg>{{ k.label }}
+                  </span>
+                </sc-for>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+    </sc-if>
+
+  </main>
+
+  <sc-if value="{{ hasSelection }}" hint-placeholder-val="{{ false }}">
+    <div style="position: sticky; bottom: 0; padding: 0 32px 24px; display: flex; justify-content: center; pointer-events: none;">
+      <div style="pointer-events: auto; background: #fff; border-radius: 999px; box-shadow: 0 6px 34px rgba(0,0,0,.14); padding: 12px 12px 12px 26px; display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 12.5px; font-feature-settings: 'tnum';">{{ selectedCount }} scenes selected</span>
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #6B7070;">{{ selectedSize }}</span>
+        <button style="font-family: 'Lexend', sans-serif; font-size: 14px; font-weight: 500; color: #fff; background: #258A55; border: none; border-radius: 999px; padding: 0 26px; min-height: 44px; cursor: pointer;" style-hover="background: #1E7049">Send to analysis</button>
+      </div>
+    </div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:900}}">
+const PACKETS = [
+  { id: 'p1', kicker: 'Sentinel-1 · GRD', title: 'Dubai flash flood extent', count: '412', sample: 'S1A_20240416_IW_DV', summary: 'Standing water across Al Quoz, Sheikh Zayed Road underpasses and Jebel Ali after the April storm, cloud-screened and water-masked.', tags: ['Water', 'Storm', 'UAE'] },
+  { id: 'p2', kicker: 'Landsat 9 · C2 L2', title: 'Al Ain oasis vegetation stress', count: '268', sample: 'LC09_20240718_160043', summary: 'Summer NDVI decline across the date-palm oases and farm belt, year over year.', tags: ['Vegetation', 'Drought', 'UAE'] },
+  { id: 'p3', kicker: 'MODIS · Terra', title: 'Shamal dust over Kuwait and Iraq', count: '189', sample: 'MOD04_20240309', summary: 'Aerosol depth tracking the dust front from southern Iraq into Kuwait City, pass by pass.', tags: ['Dust', 'Winter', 'Kuwait'] },
+  { id: 'p4', kicker: 'VIIRS · 375 m', title: 'Hatta and Hajar mountain fires', count: '231', sample: 'VNP14IMG_20240822', summary: 'Active fire detections and post-burn surface change along the Hajar range between Hatta and Fujairah.', tags: ['Fire', 'Summer', 'UAE'] },
+  { id: 'p5', kicker: 'Sentinel-2 · L2A', title: 'Abu Dhabi coastal erosion', count: '344', sample: 'S2A_20240603_T40RCN', summary: 'Shoreline position at matched tidal phase along Saadiyat and the Corniche, storm events flagged separately.', tags: ['Coast', 'Storm', 'UAE'] },
+  { id: 'p6', kicker: 'Landsat 8 · C2 L2', title: 'Riyadh urban heat island', count: '156', sample: 'LC08_20240730_165043', summary: 'Thermal band composites over Riyadh, Jeddah and Dammam, night passes isolated.', tags: ['Thermal', 'Night', 'KSA'] },
+  { id: 'p7', kicker: 'Sentinel-2 + Sentinel-5P', title: 'Jebel Ali industrial area', count: '218', sample: 'S2A_20250615_T40RCN', summary: 'Port, free zone and power/desalination complex: land-cover change and NO₂, SO₂ and PM2.5 around the site.', tags: ['Industry', 'Air quality', 'UAE'] },
+  { id: 'p8', kicker: 'Uploaded · S1 + S2 + Landsat 9', title: 'Jebel Ali flood evidence, Apr 2024', count: '6', sample: 'S1A_IW_GRDH_20240412T142512', summary: 'Your uploaded packet: radar, optical, rainfall and reports fused. Combined score 0.574, 0.74% high-agreement flood area.', tags: ['Flood', 'Uploaded', 'UAE'] }
+];
+
+const GROUPS = [
+  { label: 'Time of day', opts: [['Day', 268], ['Night', 144], ['Twilight', 32]] },
+  { label: 'Cloud cover', opts: [['Clear <5%', 190], ['Light 5-20%', 132], ['Heavy >20%', 90]] },
+  { label: 'Surface', opts: [['Open water', 211], ['Flooded land', 96], ['Vegetation', 74], ['Bare soil', 31]] },
+  { label: 'Season', opts: [['Wet', 288], ['Dry', 124]] },
+  { label: 'Quality', opts: [['Georef verified', 402], ['Sensor artefact', 10]] }
+];
+
+const TILES = ['#DCDCDC', '#D2D2D2', '#E2E2E2', '#CCCCCC', '#D7D7D7'];
+
+const ICON = {
+  sun: 'M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M18.7 5.3l-1.8 1.8M7.1 16.9l-1.8 1.8',
+  moon: 'M20 14.5A8.5 8.5 0 0 1 9.5 4 8.5 8.5 0 1 0 20 14.5z',
+  cloud: 'M17.5 19a4.5 4.5 0 0 0 0-9 6 6 0 0 0-11.6 1.6A3.5 3.5 0 0 0 6.5 19z',
+  water: 'M2 12c2-2 4-2 6 0s4 2 6 0 4-2 6 0M2 17c2-2 4-2 6 0s4 2 6 0 4-2 6 0',
+  droplet: 'M12 2.7l5.3 5.3a7.5 7.5 0 1 1-10.6 0z',
+  trees: 'M12 3l4 6h-3l3.5 5h-9L11 9H8zM12 14v7',
+  snow: 'M3 19l6-10 4 6 2-3 6 7zM7.5 11l1.5-1.5 1.5 1.5',
+  heat: 'M14 14.8V5a2 2 0 1 0-4 0v9.8a4 4 0 1 0 4 0z',
+  fire: 'M12 2s5 5 5 9a5 5 0 0 1-10 0c0-2 1.5-3.5 1.5-3.5S10 10 12 2z',
+  alert: 'M12 4l9 16H3zM12 10v4'
+};
+
+const KEYWORDS = {
+  p1: [['water', 'Inundated'], ['droplet', 'Turbid'], ['cloud', 'Haze']],
+  p2: [['trees', 'Palm canopy'], ['sun', 'Dry soil'], ['heat', 'Heat stress']],
+  p3: [['cloud', 'Dust plume'], ['sun', 'Low visibility'], ['alert', 'Shamal front']],
+  p4: [['fire', 'Burn scar'], ['cloud', 'Smoke plume'], ['trees', 'Canopy loss']],
+  p5: [['water', 'Shoreline shift'], ['droplet', 'Sediment'], ['alert', 'Storm surge']],
+  p6: [['heat', 'Heat island'], ['sun', 'Hard surface'], ['trees', 'Low canopy']]
+};
+
+KEYWORDS.p7 = [['heat', 'Hot surfaces'], ['cloud', 'NO₂ plume'], ['alert', 'Built-up growth']];
+KEYWORDS.p8 = [['water', 'Standing water'], ['rain', '53 mm peak'], ['alert', 'Moderate confidence']];
+KEYWORDS.up = [['alert', 'Pending AI tagging'], ['cloud', 'Cloud mask queued'], ['droplet', 'Unclassified']];
+
+const UP_TYPES = {
+  hs: {
+    label: 'Hyperspectral data', sub: 'S813 HSI · EnMAP · PRISMA · EMIT · AVIRIS',
+    title: 'Hyperspectral cube',
+    kinds: { hdr: 'ENVI header', img: 'ENVI data', dat: 'ENVI data', raw: 'ENVI data', bsq: 'ENVI data (BSQ)', bil: 'ENVI data (BIL)', bip: 'ENVI data (BIP)', h5: 'HDF5 cube', he5: 'HDF-EOS5 cube', nc: 'NetCDF-4 cube', tif: 'Multiband GeoTIFF', tiff: 'Multiband GeoTIFF', xml: 'Sensor metadata XML', zip: 'Zipped product' },
+    table: [
+      ['ENVI', '.hdr + .img / .dat / .bsq / .bil / .bip', 'AVIRIS, airborne and most HS processing tools. Header holds wavelengths and FWHM.'],
+      ['HDF-EOS5 / HDF5', '.he5 · .h5', 'PRISMA L1/L2 and similar spaceborne cubes.'],
+      ['NetCDF-4', '.nc', 'NASA EMIT L1B/L2A reflectance and radiance.'],
+      ['Multiband GeoTIFF + XML', '.tif + METADATA.xml', 'EnMAP L1C/L2A deliveries.']
+    ],
+    rules: [
+      'One spectral band per layer, at least 30 contiguous bands (typically 200+).',
+      'Band centre wavelength and FWHM in nm for every band — in the ENVI header or the product XML.',
+      'Radiance (W·m⁻²·sr⁻¹·µm⁻¹) or surface reflectance (0–1), stated in metadata; bad / water-absorption bands flagged.',
+      'Georeferenced: an EPSG code or map info on every cube. Raw sensor-geometry data needs a GLT / IGM file.',
+      'Each ENVI data file must have a matching .hdr with the same name.'
+    ]
+  },
+  sat: {
+    label: 'Satellite imagery', sub: 'Panchromatic · multispectral · pansharpened · SAR',
+    title: 'Satellite imagery',
+    kinds: { tif: 'GeoTIFF / COG', tiff: 'GeoTIFF / COG', jp2: 'JPEG 2000', ntf: 'NITF', nitf: 'NITF', zip: 'Product package (SAFE / DIMAP)', xml: 'Product metadata XML', mtl: 'Landsat MTL', txt: 'Landsat MTL' },
+    table: [
+      ['GeoTIFF / Cloud-Optimized GeoTIFF', '.tif · .tiff', 'Landsat C2, Planet, commercial optical; Sentinel-1 GRD measurement files.'],
+      ['JPEG 2000', '.jp2', 'Sentinel-2 L1C / L2A band files.'],
+      ['SAFE / DIMAP package', '.zip', 'Sentinel-1, Sentinel-2 and Airbus products, zipped as delivered.'],
+      ['NITF', '.ntf · .nitf', 'Maxar / WorldView and defence-standard deliveries.']
+    ],
+    rules: [
+      'Keep the product as delivered: a SAFE / DIMAP .zip, or band files plus their metadata (MTD XML or Landsat _MTL.txt).',
+      'Georeferenced: EPSG code or RPC model on every image.',
+      'State the data type: panchromatic, multispectral, pansharpened or SAR.',
+      'SAR: polarisation (VV, VH, HH, HV), orbit direction and calibration level in metadata.',
+      'Cloud mask or cloud-cover percentage for optical imagery.'
+    ]
+  }
+};
+const FILE_KINDS = UP_TYPES.hs.kinds;
+const SATS = [
+  { key: 'S813', label: 'S813', payload: 'Hyperspectral (HS)', types: ['Hyperspectral (HS)'], gsd: null },
+  { key: 'WV3', label: 'WorldView-3', payload: 'Pan · MS · pansharpened', types: ['Panchromatic', 'Multispectral', 'Pansharpened'], gsd: 0.31 },
+  { key: 'S2', label: 'Sentinel-2', payload: 'Multispectral', types: ['Multispectral'], gsd: 10 },
+  { key: 'L9', label: 'Landsat 9', payload: 'Pan · MS', types: ['Panchromatic', 'Multispectral'], gsd: 15 },
+  { key: 'S1', label: 'Sentinel-1', payload: 'SAR (C-band)', types: ['SAR'], gsd: 5 },
+  { key: 'ANY', label: 'Any suitable', payload: 'Mission Planning decides', types: ['Panchromatic', 'Multispectral', 'Pansharpened', 'SAR', 'Hyperspectral (HS)'], gsd: null }
+];
+const ALL_TYPES = ['Panchromatic', 'Multispectral', 'Pansharpened', 'SAR', 'Hyperspectral (HS)'];
+const fmtSize = b => (b > 1e9 ? (b / 1e9).toFixed(2) + ' GB' : b > 1e6 ? (b / 1e6).toFixed(1) + ' MB' : Math.max(1, Math.round(b / 1e3)) + ' KB');
+
+const accent = { bg: 'rgba(53,180,118,.09)', fg: '#1E7F4E' };
+const plain = { bg: '#EEF2F2', fg: '#555' };
+
+class Component extends DCLogic {
+  state = {
+    query: 'Flash flooding in Dubai after heavy rainfall',
+    cloud: 20,
+    season: 'Wet',
+    extras: { 'Trees': true, 'Deserts': false, 'Coastline': true, 'Sabkha': false, 'Night pass': false, 'Revisit ≤5d': true },
+    open: null,
+    groups: { 'Day': true, 'Clear <5%': true, 'Open water': true },
+    selected: {},
+    mode: null, files: [], dragOver: false, uploaded: null, packetName: '', upType: 'hs',
+    rfi: { sat: 'S813', purpose: 'Analysis', location: '', from: '2026-10-15', to: '2026-11-15', urgency: 'Routine', area: 100, regularity: 'Single collection', dataType: 'Hyperspectral (HS)', gsd: 5, angle: 'Nadir', offNadir: 20, special: '' },
+    rfiSent: null, rfiError: ''
+  };
+  fileRef = React.createRef();
+
+  addFiles(list) {
+    const add = Array.from(list || []).map(f => {
+      const parts = f.name.split('.');
+      return { name: f.name, size: f.size, ext: parts.length > 1 ? parts.pop().toLowerCase() : '', base: parts.join('.').toLowerCase() };
+    });
+    this.setState(p => ({ files: p.files.concat(add), dragOver: false }));
+  }
+
+  classify(files, type) {
+    const T = UP_TYPES[type];
+    const ENVI_DATA = ['img', 'dat', 'raw', 'bsq', 'bil', 'bip'];
+    const bases = ext => files.filter(f => ext.includes(f.ext)).map(f => f.base);
+    const hdrs = bases(['hdr']), datas = bases(ENVI_DATA);
+    return files.map(f => {
+      const kind = T.kinds[f.ext];
+      let role = 'imagery', ok = !!kind, hint = '';
+      if (!kind) { hint = type === 'hs' ? ' · not a hyperspectral format' : ' · not a satellite imagery format'; }
+      else if (f.ext === 'xml' || f.ext === 'mtl' || f.ext === 'txt') { role = 'meta'; if (f.ext === 'txt' && !/_mtl/.test(f.base)) { ok = false; hint = ' · only Landsat _MTL.txt accepted'; } }
+      else if (f.ext === 'zip') role = 'package';
+      else if (f.ext === 'hdr') { role = 'meta'; if (!datas.includes(f.base)) { ok = false; hint = ' · missing data file with same name'; } }
+      else if (ENVI_DATA.includes(f.ext)) { if (!hdrs.includes(f.base)) { ok = false; hint = ' · missing ' + f.base + '.hdr'; } }
+      return { ...f, kind: kind || 'Unknown format', role, ok, hint };
+    });
+  }
+
+  setRfi(k, v) { this.setState(p => ({ rfi: { ...p.rfi, [k]: v }, rfiError: '' })); }
+
+  chip(on) {
+    return on
+      ? { border: '#35B476', bg: 'rgba(53,180,118,.08)', fg: '#1E7F4E' }
+      : { border: 'rgba(0,0,0,.12)', bg: 'transparent', fg: '#333' };
+  }
+
+  renderVals() {
+    const s = this.state;
+    const selCount = Object.values(s.selected).filter(Boolean).length;
+
+    const kwSet = KEYWORDS[s.open] || KEYWORDS.p1;
+
+    const scenes = Array.from({ length: 18 }, (_, i) => {
+      const on = !!s.selected['s' + i];
+      const night = i % 5 === 3;
+      const d = new Date(2024, 6, 2 + i * 2);
+      const kws = [
+        [night ? 'moon' : 'sun', night ? 'Night' : 'Day'],
+        kwSet[i % kwSet.length],
+        kwSet[(i + 1) % kwSet.length]
+      ];
+      return {
+        keywords: kws.map(([ic, label], j) => ({
+          icon: ICON[ic], label,
+          bg: j === 1 ? accent.bg : plain.bg,
+          fg: j === 1 ? accent.fg : plain.fg
+        })),
+        id: 's' + i,
+        tile: TILES[i % TILES.length],
+        band: (night ? 'B12 · SWIR' : 'B08 · NIR'),
+        date: d.toISOString().slice(0, 10),
+        cloudPct: ((i * 7) % 24) + '% cloud',
+        phase: night ? 'Night' : 'Day',
+        mark: on ? '✓' : '',
+        markBg: on ? '#258A55' : 'rgba(255,255,255,.75)',
+        markBorder: on ? '#35B476' : 'rgba(0,0,0,.15)',
+        shadow: on ? '0 4px 20px rgba(53,180,118,.18)' : '0 2px 14px rgba(0,0,0,.05)',
+        ring: on ? '2px solid #35B476' : '1px solid rgba(0,0,0,.06)',
+        onToggle: () => this.setState(p => ({ selected: { ...p.selected, ['s' + i]: !p.selected['s' + i] } }))
+      };
+    });
+
+    const allPackets = s.uploaded ? [s.uploaded].concat(PACKETS) : PACKETS;
+    const openPacket = allPackets.find(p => p.id === s.open);
+    const seg = on => on ? { bg: '#545454', fg: '#D5F8FF' } : { bg: 'transparent', fg: '#454949' };
+    const pill = on => on ? { bg: 'rgba(53,180,118,.08)', fg: '#1E7F4E', border: '#35B476' } : { bg: 'transparent', fg: '#454949', border: '#E1E6E6' };
+
+    const UT = UP_TYPES[s.upType];
+    const files = this.classify(s.files, s.upType);
+    const imagery = files.filter(f => f.ok && f.role === 'imagery');
+    const hasPkg = files.some(f => f.ok && f.role === 'package');
+    const hasManifest = files.some(f => f.ok && f.role === 'meta');
+    const bad = files.filter(f => !f.ok);
+    const named = s.packetName.trim().length > 0;
+    const uploadReady = files.length > 0 && !bad.length && (hasPkg || (imagery.length && hasManifest)) && named;
+    const uploadStatus = !files.length ? 'Add a package or imagery files to continue.'
+      : bad.length ? bad.length + ' file' + (bad.length > 1 ? 's' : '') + ' failed the ' + UT.title.toLowerCase() + ' format check. Fix or remove ' + (bad.length > 1 ? 'them' : 'it') + ' to continue.'
+      : !hasPkg && !hasManifest ? (s.upType === 'hs' ? 'Add wavelength metadata: an ENVI .hdr or the product XML.' : 'Add product metadata: MTD XML or Landsat _MTL.txt.')
+      : !hasPkg && !imagery.length ? 'Add at least one imagery file.'
+      : !named ? 'Format check passed. Name the packet to continue.'
+      : 'Format check passed. Ready to build "' + s.packetName.trim() + '".';
+
+    const r = s.rfi, sat = SATS.find(x => x.key === r.sat);
+    const gsdTooFine = sat.gsd && +r.gsd < sat.gsd;
+    const ack = s.rfiSent;
+
+    return {
+      isChoose: !s.mode, hasMode: !!s.mode, isUpload: s.mode === 'upload', isCurrent: s.mode === 'current', isRfi: s.mode === 'rfi',
+      pickUpload: () => this.setState({ mode: 'upload' }), pickCurrent: () => this.setState({ mode: 'current' }), pickRfi: () => this.setState({ mode: 'rfi' }), pickNone: () => this.setState({ mode: null, open: null }),
+      modeTabs: [['upload', 'Upload data'], ['current', 'Current data'], ['rfi', 'RFI']].map(([k, label]) => ({ label, ...seg(s.mode === k), onPick: () => this.setState({ mode: k, open: null }) })),
+
+      fileRef: this.fileRef,
+      openPicker: () => this.fileRef.current && this.fileRef.current.click(),
+      onFiles: e => { this.addFiles(e.target.files); e.target.value = ''; },
+      onDragOver: e => { e.preventDefault(); if (!s.dragOver) this.setState({ dragOver: true }); },
+      onDragLeave: () => this.setState({ dragOver: false }),
+      onDrop: e => { e.preventDefault(); this.addFiles(e.dataTransfer.files); },
+      dropBorder: s.dragOver ? '#35B476' : '#C9D1D1', dropBg: s.dragOver ? 'rgba(53,180,118,.05)' : '#FAFBFB',
+      hasFiles: files.length > 0,
+      upTypes: Object.keys(UP_TYPES).map(k => { const on = s.upType === k; return { label: UP_TYPES[k].label, sub: UP_TYPES[k].sub, bg: on ? 'rgba(53,180,118,.07)' : '#fff', border: on ? '#1E7F4E' : '#DDE3E3', onPick: () => this.setState({ upType: k }) }; }),
+      acceptLine: UT.table.map(r => r[1]).join(' · '),
+      acceptAttr: Object.keys(UT.kinds).map(e => '.' + e).join(','),
+      files: files.map((f, i) => ({ name: f.name, size: fmtSize(f.size), kind: f.kind, hint: f.hint,
+        status: !f.ok ? 'Check failed' : f.role === 'package' ? 'Package' : f.role === 'meta' ? 'Metadata' : (s.upType === 'hs' ? 'Cube' : 'Imagery'),
+        statusFg: f.ok ? '#545454' : '#35B476', dot: f.ok ? '#545454' : '#35B476',
+        onRemove: e => { e.stopPropagation(); this.setState(p => ({ files: p.files.filter((_, j) => j !== i) })); } })),
+      packetName: s.packetName,
+      onPacketName: e => this.setState({ packetName: e.target.value }),
+      packetNameBorder: files.length && !named ? '#41DDFF' : 'transparent',
+      uploadStatus, uploadStatusFg: uploadReady ? '#545454' : '#6B7070',
+      uploadBtnBg: uploadReady ? '#258A55' : '#A8B0B0', uploadBtnCursor: uploadReady ? 'pointer' : 'not-allowed',
+      buildFromUpload: () => {
+        if (!uploadReady) return;
+        const n = hasPkg ? files.filter(f => f.role === 'package').length : imagery.length;
+        this.setState({ mode: 'current', open: null, uploaded: { id: 'up', kicker: (s.upType === 'hs' ? 'Hyperspectral upload' : 'Satellite imagery upload') + ' · demo', title: s.packetName.trim(), count: String(n), sample: files[0].name, summary: 'Ingested from your upload. AI tagging and cloud masking run after the format check.', tags: ['Upload', 'Pending'] } });
+      },
+
+      rfi: r,
+      onRfi: Object.fromEntries(['location', 'from', 'to', 'area', 'gsd', 'offNadir', 'special'].map(k => [k, e => this.setRfi(k, e.target.value)])),
+      satOpts: SATS.map(x => { const on = r.sat === x.key; return { label: x.label, payload: x.payload, bg: on ? 'rgba(53,180,118,.06)' : '#fff', border: on ? '#35B476' : '#E1E6E6',
+        onPick: () => this.setState(p => ({ rfi: { ...p.rfi, sat: x.key, dataType: x.types.includes(p.rfi.dataType) ? p.rfi.dataType : x.types[0] }, rfiError: '' })) }; }),
+      purposeOpts: ['Targeting', 'Analysis', 'Change detection'].map(label => ({ label, ...pill(r.purpose === label), onPick: () => this.setRfi('purpose', label) })),
+      urgencyOpts: ['Routine', 'Priority', 'Urgent'].map(label => ({ label, ...seg(r.urgency === label), onPick: () => this.setRfi('urgency', label) })),
+      regularityOpts: ['Single collection', 'Weekly', 'Monthly'].map(label => ({ label, ...seg(r.regularity === label), onPick: () => this.setRfi('regularity', label) })),
+      dataTypeOpts: ALL_TYPES.map(label => { const allowed = sat.types.includes(label), on = r.dataType === label;
+        return { label, ...pill(on), cursor: allowed ? 'pointer' : 'not-allowed', opacity: allowed ? 1 : 0.4, onPick: () => allowed && this.setRfi('dataType', label) }; }),
+      dataTypeNote: r.sat === 'S813' ? 'For S813, the data type is HS.' : sat.key === 'ANY' ? 'Any payload — Mission Planning matches a satellite to the data type.' : sat.label + ' payload: ' + sat.types.join(', ') + '.',
+      gsdNote: gsdTooFine ? 'Finer than ' + sat.label + ' can deliver (best ' + sat.gsd + ' m).' : sat.gsd ? sat.label + ' best GSD ' + sat.gsd + ' m.' : 'GSD confirmed by Mission Planning against the payload.',
+      gsdNoteFg: gsdTooFine ? '#35B476' : '#6B7070',
+      angleOpts: ['Nadir', 'Oblique'].map(label => ({ label, ...seg(r.angle === label), onPick: () => this.setRfi('angle', label) })),
+      isOblique: r.angle === 'Oblique',
+      locBorder: s.rfiError && !r.location.trim() ? '#35B476' : 'transparent',
+      rfiError: s.rfiError,
+      submitRfi: () => {
+        if (!r.location.trim()) return this.setState({ rfiError: 'Add a location — coordinates or area of interest.' });
+        if (r.from && r.to && r.to < r.from) return this.setState({ rfiError: 'The collection window ends before it starts.' });
+        this.setState({ rfiSent: { id: 'RFI-' + new Date().getFullYear() + '-' + String(Math.floor(1000 + Math.random() * 9000)), center: (r.sat === 'S813' ? 'S813 Mission Planning Center' : 'Mission Planning Center') } });
+      },
+      rfiSent: !!ack, rfiId: ack ? ack.id : '', rfiCenter: ack ? ack.center : '',
+      rfiSummary: [
+        ['Satellite', sat.label], ['Purpose', r.purpose], ['Location', r.location.trim() || '—'],
+        ['Timing', (r.from || '—') + ' → ' + (r.to || '—') + ' · ' + r.urgency], ['Area size', r.area + ' km² · ' + r.regularity],
+        ['Data type', r.dataType], ['Resolution', r.gsd + ' m GSD'], ['Viewing angle', r.angle === 'Oblique' ? 'Oblique, ≤ ' + r.offNadir + '°' : 'Nadir'],
+        ['Special requirements', r.special.trim() || 'None']
+      ].map(([label, value]) => ({ label, value })),
+
+      query: s.query,
+      onQuery: e => this.setState({ query: e.target.value }),
+      runSearch: () => this.setState({ open: null }),
+      cloud: s.cloud,
+      onCloud: e => this.setState({ cloud: Number(e.target.value) }),
+
+      seasons: ['Any', 'Wet', 'Dry', 'Transition'].map(label => ({
+        label,
+        bg: s.season === label ? '#fff' : 'transparent',
+        fg: s.season === label ? '#000' : '#6B7070',
+        onPick: () => this.setState({ season: label })
+      })),
+
+      extraFilters: Object.keys(s.extras).map(label => {
+        const c = this.chip(s.extras[label]);
+        return { label, sign: s.extras[label] ? '−' : '+', ...c,
+          onToggle: () => this.setState(p => ({ extras: { ...p.extras, [label]: !p.extras[label] } })) };
+      }),
+
+      packets: allPackets.map(p => ({ ...p, onOpen: () => this.setState({ open: p.id }) })),
+
+      isBrowsing: s.mode === 'current' && !s.open,
+      isOpen: s.mode === 'current' && !!s.open,
+      openTitle: openPacket ? openPacket.title : '',
+      openMeta: openPacket ? openPacket.count + ' scenes · ' + openPacket.kicker + ' · 18 shown' : '',
+      backToPackets: () => this.setState({ open: null }),
+
+      groups: GROUPS.map(g => ({
+        label: g.label,
+        opts: g.opts.map(([label, n]) => {
+          const c = this.chip(!!s.groups[label]);
+          return { label, n, ...c,
+            onToggle: () => this.setState(p => ({ groups: { ...p.groups, [label]: !p.groups[label] } })) };
+        })
+      })),
+
+      scenes,
+      selectAll: () => this.setState({ selected: Object.fromEntries(scenes.map(x => [x.id, true])) }),
+      clearAll: () => this.setState({ selected: {} }),
+      hasSelection: selCount > 0,
+      selectedCount: selCount,
+      selectedSize: (selCount * 0.74).toFixed(1) + ' GB'
+    };
+  }
+}
+</script>
+</body>
+</html>
