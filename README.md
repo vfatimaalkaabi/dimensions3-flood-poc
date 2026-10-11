@@ -345,20 +345,22 @@ dimensions3-flood-poc/
 
 ## Presentation
 
-A ten-slide presentation has been prepared and exported as PDF for the official submission form.
+The final Dimensions³ presentation presents the problem, business use case, datasets, methodology, actual analytical outputs, validation, limitations, impact and future incubation plan.
 
-The presentation covers:
+[Download the final presentation slides](docs/slides.pdf)
 
-- Project, team, theme and country
+The presentation includes:
+
+- Project title, team, theme and country
 - Problem and affected users
 - Business use case and target customers
-- Data sources and hyperspectral-data status
-- Multi-source workflow
-- Actual notebook outputs
-- Reproduced headline result
-- Website prototype
+- Sentinel-1, Sentinel-2, Landsat 9 and rainfall data
+- Hyperspectral-data status and potential future use
+- Multi-source flood-screening workflow
+- Actual notebook outputs and portal screenshots
+- Reproduced `MEDIUM` screening result and `0.574` score
 - Validation and limitations
-- Impact and incubation roadmap
+- Expected impact and next steps
 
 ## Demo Video
 
