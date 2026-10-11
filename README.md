@@ -1,131 +1,160 @@
 # Dimensions³ — Jebel Ali Flood Evidence PoC
 
-**Team:** Dimensions³  
-**Country:** United Arab Emirates  
-**Theme:** Climate-induced Disasters
+**Team Dimensions³ · Climate-induced Disasters · United Arab Emirates**
 
 Dimensions³ is a multi-source Earth Observation proof of concept that combines satellite imagery, rainfall data, official reports, and public evidence to screen for possible flood-related surface changes around Jebel Ali, Dubai.
+
+[![Open in Google Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/vfatimaalkaabi/dimensions3-flood-poc/blob/main/notebooks/02_main_analysis.ipynb)
+
+## Live Demonstration
+
+- **Dimensions³ web portal:**  
+  https://vfatimaalkaabi.github.io/dimensions3-flood-poc/
+
+- **Jebel Ali flood-evidence packet:**  
+  https://vfatimaalkaabi.github.io/dimensions3-flood-poc/jebel-ali-packet.html
+
+- **GitHub repository:**  
+  https://github.com/vfatimaalkaabi/dimensions3-flood-poc
+
+The Jebel Ali packet presents the reproduced proof-of-concept results. The wider portal demonstrates the proposed customer workflow; some alerts, city-level functions and future analytical capabilities are illustrative prototype features.
 
 ## 1. Business Use Case
 
 Dimensions³ is designed for:
 
-- Municipalities and local government authorities
-- Emergency-management and civil-defense teams
-- Infrastructure and port operators
-- Environmental and climate-risk authorities
-- Insurance and risk-assessment organizations
-- Urban planners and researchers
+- Municipalities and emergency-management teams
+- Civil defence and disaster-response authorities
+- Ports and infrastructure operators
+- Environmental and climate agencies
+- Urban planners
+- Insurers, researchers and resilience planners
+- Decision-makers without specialist remote-sensing knowledge
 
-These users need to identify locations that may have experienced flood-related surface changes, understand the evidence supporting the result, and prioritize inspections or emergency response.
+After extreme rainfall, these users need to identify locations that may require inspection, understand the available evidence and prioritize response activities.
 
-Current Earth Observation, weather, and event-report data are distributed across different platforms and can be difficult for non-specialists to interpret quickly. Dimensions³ converts these sources into understandable maps, evidence summaries, and a transparent preliminary confidence level.
+The platform converts multiple technical datasets into one evidence packet containing satellite comparisons, rainfall information, supporting reports and a transparent screening result.
 
 ## 2. Problem
 
-Arid regions such as the United Arab Emirates can experience sudden intense rainfall and flash flooding. Flood impacts may develop quickly across roads, industrial zones, ports, and urban infrastructure.
+Arid regions such as the United Arab Emirates can experience sudden intense rainfall and flash flooding. Relevant satellite imagery, weather measurements and event reports are available, but they are distributed across different platforms and require specialist processing.
 
-Satellite imagery can provide broad and repeated observations, but individual sensors have limitations:
+A single optical image can also be affected by cloud, shadows, acquisition timing or permanent water. Radar imagery is more reliable during cloudy conditions, but it can still respond to wet soil, roughness and geometric effects.
 
-- Optical imagery can be affected by clouds and shadows.
-- Radar imagery can contain speckle, coastline effects, and changes unrelated to flooding.
-- Permanent water may be incorrectly classified as new floodwater.
-- News and public reports confirm an event but do not provide precise flood boundaries.
-
-The challenge is to combine these different forms of evidence into a transparent and reproducible preliminary screening result.
+Dimensions³ addresses this problem by combining several independent sources rather than relying on one image or sensor.
 
 ## 3. Data Used
 
-### Sentinel-1
+### Sentinel-1 SAR
 
-- Product: Sentinel-1 Interferometric Wide Swath GRD
-- Provider: Copernicus Data Space Ecosystem
-- Instrument: C-band Synthetic Aperture Radar
-- Polarizations: VV and VH
-- Before date: 12 April 2024
-- After date: 24 April 2024
-- Processing level: Level-1 GRD
-- Licence: Copernicus Sentinel Data Terms and Conditions
+- **Provider:** European Space Agency and Copernicus Data Space Ecosystem
+- **Product:** Sentinel-1A Interferometric Wide Swath GRD
+- **Processing level:** Level-1 GRD
+- **Polarizations:** VV and VH
+- **Before:** 12 April 2024
+- **After:** 24 April 2024
+- **Purpose:** Radar-backscatter change and candidate-water screening
+- **Licence:** Copernicus Sentinel Data Terms and Conditions
 
 ### Sentinel-2
 
-- Product: Sentinel-2 MSI Level-2A
-- Access provider: Microsoft Planetary Computer
-- Instrument: MultiSpectral Instrument
-- Tile: 40RBN
-- Before date: 12 April 2024
-- After date: 22 April 2024
-- Processing level: Level-2A surface reflectance
-- Licence: Copernicus Sentinel Data Terms and Conditions
+- **Provider:** European Space Agency/Copernicus, accessed through Microsoft Planetary Computer
+- **Product:** Sentinel-2 MSI Level-2A surface reflectance
+- **Tile:** 40RBN
+- **Before:** 12 April 2024
+- **After:** 22 April 2024
+- **Bands used:** Blue, green, red, near-infrared and short-wave infrared
+- **Purpose:** Natural-colour comparison and MNDWI water-change screening
+- **Licence:** Copernicus Sentinel Data Terms and Conditions
 
 ### Landsat 9
 
-- Product: Landsat Collection 2 Level-2
-- Provider: United States Geological Survey
-- Before scene: `LC09_L2SP_160043_20240403_02_T1`
-- After scene: `LC09_L2SP_160043_20240419_02_T1`
-- Before date: 3 April 2024
-- After date: 19 April 2024
-- Processing level: Collection 2 Level-2 surface reflectance
-- Licence: USGS Landsat data are available without restriction and are considered public-domain data
+- **Provider:** United States Geological Survey, accessed through Microsoft Planetary Computer
+- **Product:** Landsat Collection 2 Level-2 surface reflectance
+- **Path/row:** 160/043
+- **Before:** 3 April 2024
+- **After:** 19 April 2024
+- **Purpose:** Independent optical water-change evidence using MNDWI
+- **Licence:** Landsat data are in the public domain; source acknowledgement is requested
 
-### Weather data
+### NASA POWER
 
-- Product: NASA POWER daily meteorological data
-- Provider: NASA Prediction of Worldwide Energy Resources
-- Period: April 2024
-- Variables: precipitation, temperature, and wind speed
-- Approximate location: 24.98°N, 55.05°E
-- Licence and attribution: NASA POWER data policy and documentation
+- **Provider:** NASA Prediction of Worldwide Energy Resources
+- **Period:** 1–30 April 2024
+- **Location:** Approximately 24.98°N, 55.05°E
+- **Variables:** Daily precipitation, temperature and wind speed
+- **Purpose:** Rainfall-event context and temporal corroboration
+- **Licence:** NASA POWER data-access and attribution guidance
 
-### Supporting evidence
+### Supporting Evidence
 
-The project also uses official reports, news coverage, and publicly accessible event videos as regional corroborating evidence.
+The PoC includes six official/news records and three public-content records associated with the April 2024 UAE rainfall event.
 
-Public reports and social-media content are referenced using their original URLs. They are not treated as pixel-level ground truth and are not redistributed as project-owned material.
+Supporting reports are used only as regional and temporal corroboration. They are not treated as pixel-level flood ground truth.
 
-### Hyperspectral data
+### Hyperspectral Data
 
-Hyperspectral imagery is not used in the current proof of concept. It is proposed as future work for improved surface-material, moisture, and water-quality analysis where appropriate data are available.
+Hyperspectral imagery was not used in the current flood-screening result.
+
+Future versions may investigate hyperspectral data for surface-moisture characterization, material identification and water-quality assessment where suitable imagery and validation data are available.
 
 ## 4. Technical Approach
 
-The workflow follows these steps:
+The processing workflow is:
 
-1. Define the Jebel Ali area of interest.
-2. Search for before-and-after Sentinel-2 and Landsat scenes.
-3. Load Sentinel-1 VV and VH measurement data.
-4. Compare Sentinel-1 radar backscatter before and after the event.
-5. Calculate water-related optical indices from Sentinel-2 and Landsat.
-6. Generate candidate water-change masks for each sensor.
-7. Reduce isolated radar noise.
-8. Remove permanent-water and coastline effects where possible.
-9. Transform the processed masks to a common analysis grid.
-10. Identify pixels supported by at least two satellite sources.
-11. Add rainfall, official-report, and public-evidence support.
-12. Calculate a transparent preliminary evidence score.
-13. Save maps, figures, tables, and JSON summaries.
+1. Define the Jebel Ali study area and April 2024 event period.
+2. Collect before-and-after Sentinel-1, Sentinel-2 and Landsat 9 observations.
+3. Inspect scene dates, cloud cover, processing levels and spatial coverage.
+4. Calculate optical water-related change using MNDWI.
+5. Compare Sentinel-1 VV and VH radar backscatter before and after the event.
+6. Remove permanent water, including the sea and port basins.
+7. Filter isolated candidate pixels and obvious radar noise.
+8. Resize the candidate masks to a common `374 × 341` analysis grid.
+9. Identify high-agreement candidate pixels supported by at least two sensors.
+10. Add rainfall, official reports and public corroborating evidence.
+11. Produce a transparent combined screening score and evidence dashboard.
 
-The main optical water-related index is the Modified Normalized Difference Water Index:
+The Modified Normalized Difference Water Index is:
 
 ```text
 MNDWI = (Green - SWIR) / (Green + SWIR)
 ```
 
-The reproducible evidence score uses the following transparent weighting:
+The internal spatial fusion uses:
 
 ```text
-Combined score =
-    50% spatial evidence
-  + 30% rainfall evidence
-  + 20% supporting-report evidence
+40% Sentinel-1 + 30% Sentinel-2 + 30% Landsat 9
 ```
 
-This combined score is a heuristic evidence score. It is not a formal machine-learning accuracy measurement.
+The final evidence score uses:
 
-## 5. Installation
+```text
+50% spatial support + 30% rainfall support + 20% report support
+```
 
-The lightweight reproducible notebook requires Python 3.11.
+The current PoC uses transparent rules and weighted evidence fusion. CNN segmentation, deep learning and AI-agent automation are proposed future improvements and are not presented as completed validation.
+
+## 5. Headline Result
+
+The reproduced proof-of-concept result is:
+
+| Measure | Result |
+|---|---:|
+| Screening label | **MEDIUM** |
+| Combined evidence score | **0.574** |
+| High-agreement candidate area | **0.74%** |
+| High-agreement pixels | **873** |
+| Peak daily rainfall | **53.39 mm** |
+| Peak rainfall date | **16 April 2024** |
+| Supporting evidence records | **9** |
+
+The `0.574` value is an evidence-screening score, not a formal accuracy percentage.
+
+The `0.74%` result represents a preliminary candidate flood-related area supported by multiple sensors after permanent-water removal. It is not a confirmed flood-extent measurement.
+
+## 6. Installation
+
+Python 3.11 is recommended.
 
 ```bash
 git clone https://github.com/vfatimaalkaabi/dimensions3-flood-poc.git
@@ -137,158 +166,231 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-For Windows:
+On Windows, activate the environment with:
 
 ```bash
 .venv\Scripts\activate
-pip install -r requirements.txt
 ```
 
-## 6. How to Run
-
-### Reviewer-friendly reproducible notebook
-
-Run:
+Then launch Jupyter:
 
 ```bash
-jupyter lab notebooks/02_main_analysis.ipynb
+jupyter lab
 ```
 
-Open the notebook and select **Run All**.
+No API credentials are required for the committed reproducible sample.
+
+## 7. How to Run
+
+### Recommended Reviewer Workflow
+
+Open:
+
+```text
+notebooks/02_main_analysis.ipynb
+```
+
+Run all cells from the beginning.
 
 The notebook:
 
-- Locates the committed sample input
-- Loads the three processed satellite evidence masks
-- Recalculates multi-sensor agreement
-- Recalculates the combined evidence score
-- Produces the final example figure
-- Writes a machine-readable JSON summary
+1. Loads the committed sample input.
+2. Reconstructs the multi-source spatial evidence.
+3. Adds rainfall and supporting evidence.
+4. Reproduces the combined score.
+5. Saves the headline visualization and summary.
 
-Expected runtime is less than two minutes on a standard laptop. No GPU is required.
+Expected runtime is approximately 2–5 minutes on a standard laptop or Google Colab. No GPU is required.
 
-The notebook can also be opened directly in Google Colab:
+The expected final output is:
 
-[Open the reproducible notebook in Google Colab](https://colab.research.google.com/github/vfatimaalkaabi/dimensions3-flood-poc/blob/main/notebooks/02_main_analysis.ipynb)
+```text
+Screening label: MEDIUM
+Combined evidence score: 0.574
+Candidate area: 0.74%
+Peak rainfall: 53.39 mm
+Supporting evidence records: 9
+```
 
-### Complete research workflow
+The full development and data-collection workflow is also documented in:
 
-The full data-collection and processing workflow is available in:
+```text
+Dimensions3_FinalCode.ipynb
+```
 
-[`Dimensions3_FinalCode.ipynb`](Dimensions3_FinalCode.ipynb)
+The full notebook accesses public satellite catalogues and may take longer because it searches, downloads and processes larger remote datasets.
 
-The complete workflow uses the original satellite products and may require additional download time, memory, and temporary Colab storage.
+## 8. Example Input and Output
 
-## 7. Example Input and Output
+### Example Input
 
-### Example input
+The small reproducible input is committed at:
 
-The small processed sample is committed at:
+```text
+data/sample_input/dimensions3_sample_input.npz
+```
 
-[`data/sample_input/dimensions3_sample_input.npz`](data/sample_input/dimensions3_sample_input.npz)
+It contains processed and aligned sample masks derived from Sentinel-1, Sentinel-2 and Landsat 9, together with the rainfall and supporting-evidence values required to reproduce the headline result.
 
-It contains:
+This sample avoids committing complete satellite scenes or restricted imagery.
 
-- Processed Sentinel-1 candidate mask
-- Processed Sentinel-2 candidate mask
-- Processed Landsat 9 candidate mask
-- Valid-land analysis mask
-- Peak-rainfall value
-- Official-report count
-- Public-evidence count
-- Study-area and event metadata
+### Example Output
 
-The sample excludes full satellite scenes so that the repository remains small and reproducible.
+The reproduced output is available at:
 
-### Example output
+```text
+results/reproducible_flood_evidence_result.png
+```
 
-The reproducible result is available at:
+![Dimensions³ reproduced flood-evidence result](results/reproducible_flood_evidence_result.png)
 
-- [`results/reproducible_flood_evidence_result.png`](results/reproducible_flood_evidence_result.png)
-- [`results/reproducible_flood_evidence_summary.json`](results/reproducible_flood_evidence_summary.json)
+Additional figures in `results/` include:
 
-![Dimensions³ reproducible flood-evidence result](results/reproducible_flood_evidence_result.png)
+- Sentinel-1 radar before/after and change analysis
+- Sentinel-2 natural-colour comparison
+- Landsat 9 MNDWI analysis
+- Rainfall visualization
+- Multi-source fusion result
+- Supporting-evidence timeline
+- Improved screening after permanent-water removal
 
-Additional outputs are available in the [`results/`](results/) folder.
+The same evidence is presented interactively on the [Jebel Ali flood-evidence page](https://vfatimaalkaabi.github.io/dimensions3-flood-poc/jebel-ali-packet.html).
 
-## 8. Results
+## 9. Validation and Limitations
 
-The reproducible demonstration produces:
+### What Was Verified
 
-- Sentinel-1 candidate-water evidence: approximately 2.7%
-- Sentinel-2 candidate-water evidence: approximately 0.85%
-- Landsat 9 candidate-water evidence: approximately 4.05%
-- High-agreement candidate pixels: 873
-- Valid analysis pixels: 118,327
-- High-agreement candidate area: 0.74%
-- Peak rainfall: 53.39 mm
-- Official reports: 6
-- Public supporting-evidence records: 3
-- Total supporting records: 9
-- Combined evidence score: 0.574
-- Preliminary screening label: **MEDIUM**
+- A fresh Google Colab run reproduced the `0.574` score and `MEDIUM` label.
+- The committed sample input reproduces the result without downloading full satellite scenes.
+- The three satellite masks use the same `374 × 341` analysis-array dimensions.
+- High-agreement pixels require support from at least two sensors.
+- Permanent-water pixels and isolated radar noise were reduced.
+- Inputs, processing rules, weights and outputs are documented.
+- The live website displays the reproduced values and analytical figures.
 
-The result indicates that multiple sources provide preliminary support for flood-related surface change around the study area. Locations highlighted by the output should be treated as candidates for further inspection rather than confirmed flooded pixels.
+### Current Limitations
 
-## 9. Validation, Limitations, and Future Work
+- No independent georeferenced flood-extent map was available as ground truth.
+- Equal array dimensions do not prove exact geographic co-registration.
+- The Sentinel-1 GRD measurements were used for preliminary change screening.
+- Operational validation should use fully calibrated, terrain-corrected and georeferenced radar products.
+- Radar shadows, wet soil, coastline effects, construction and image-registration differences can create false positives.
+- Clouds and different acquisition dates can affect Sentinel-2 and Landsat comparisons.
+- Rainfall and reports support the event context but do not identify exact flooded pixels.
+- Public social-media content is used only as regional corroboration.
+- Precision, recall, F1 score and Intersection over Union have not yet been measured.
+- The combined score is a transparent heuristic screening score, not a trained-model probability.
+- Some wider portal functions are illustrative prototype features.
 
-### Validation
+The result should be used to prioritize inspection and further validation, not to declare confirmed flooded locations.
 
-The proof of concept validates reproducibility by committing a small sample that reproduces the same headline result as the complete workflow.
+## 10. Impact and Next Steps
 
-The score is based on agreement between satellite evidence, rainfall, and event reports. It has not been validated against an independent georeferenced flood-extent map.
+### Expected Impact
 
-### Limitations
+Dimensions³ can help organizations:
 
-- The combined score is heuristic and is not a formal accuracy percentage.
-- No independent ground-truth flood map was available for precision, recall, F1, or Intersection-over-Union evaluation.
-- The masks are processed onto a common array grid, but full geographic co-registration requires further validation.
-- Sentinel-1 radar changes may result from roughness, moisture, construction, geometry, or registration effects.
-- Optical imagery may be affected by clouds, shadows, and acquisition-date differences.
-- Permanent water and coastline effects may create false positives.
-- Social-media content provides regional corroboration only.
-- The current proof of concept studies one event and one area.
+- Screen large areas faster after extreme rainfall
+- Combine technical evidence in one understandable interface
+- Prioritize roads, industrial sites and infrastructure for inspection
+- Preserve traceable evidence for reporting and planning
+- Make Earth Observation information accessible to non-specialist users
 
-### Future work
+### Next Steps for Incubation
 
-- Use radiometrically calibrated and terrain-corrected Sentinel-1 RTC data.
-- Perform precise geographic co-registration across all satellite sources.
-- Validate predictions using field observations or independent flood maps.
-- Calculate precision, recall, F1 score, and Intersection over Union.
-- Add local rain-gauge, radar-rainfall, and official NCM data.
-- Use longer satellite time series instead of only two dates.
-- Add digital elevation, slope, drainage, soil, and land-cover data.
-- Train a CNN or segmentation model using labelled flood examples.
-- Add uncertainty calibration and explainable-AI outputs.
-- Explore hyperspectral imagery for moisture and surface-material analysis.
-- Add near-real-time processing and automated event alerts.
-- Integrate the analysis outputs into the Dimensions³ website.
-- Support downloadable maps, evidence packets, and inspection reports.
-- Extend the platform to wildfire, earthquake-impact, and other climate-risk applications.
+1. Process Sentinel-1 data to calibrated, terrain-corrected RTC products.
+2. Perform exact geospatial co-registration instead of array-only resizing.
+3. Validate results against authoritative flood maps or field observations.
+4. Add elevation, slope, drainage and road-network information.
+5. Analyse longer pre-event and post-event time series.
+6. Calculate precision, recall, F1 score and IoU.
+7. Train and validate CNN-based flood-segmentation models when labelled data are available.
+8. Investigate suitable hyperspectral datasets.
+9. Connect the notebook output to an operational web API.
+10. Develop validated automated alerts and scalable processing for additional locations and hazards.
 
-## 10. Team, Licence, and Attribution
+## Repository Structure
 
-### Team members and roles
+```text
+dimensions3-flood-poc/
+├── README.md
+├── LICENSE
+├── requirements.txt
+├── Dimensions3_FinalCode.ipynb
+├── index.html
+├── analysis.html
+├── timeline.html
+├── city-map.html
+├── alerts.html
+├── report.html
+├── jebel-ali-packet.html
+├── support.js
+├── notebooks/
+│   └── 02_main_analysis.ipynb
+├── data/
+│   └── sample_input/
+│       └── dimensions3_sample_input.npz
+└── results/
+    ├── reproducible_flood_evidence_result.png
+    ├── sentinel1-radar.png
+    ├── sentinel1-screening.png
+    ├── sentinel2-rgb.png
+    ├── landsat9-mndwi.png
+    ├── rainfall.png
+    ├── evidence-count.png
+    ├── evidence-timeline.png
+    ├── fusion.png
+    └── improved-screening.png
+```
 
-- **Alia Alblooshi — Website and integration:** Developed the platform interface and connected analysis outputs to the website.
-- **Fatima Alkaabi — Data pipeline and analysis:** Collected and processed the satellite, rainfall, and supporting evidence; developed the notebook and multi-source screening.
-- **Wadha Alkaabi — Satellite imagery:** Supported Sentinel-1, Sentinel-2, and Landsat data preparation and interpretation.
-- **Fatima Alnuaimi — Evidence and validation:** Reviewed weather data, event references, results, and limitations.
-- **Mariam Alneyadi — Reproducibility and presentation:** Prepared repository documentation, tested the reviewer workflow, and developed the submission slides.
+## Presentation
 
-### Project licence
+A ten-slide presentation has been prepared and exported as PDF for the official submission form.
 
-The project code is released under the MIT License. Third-party datasets, reports, images, and services remain subject to their respective provider terms and licences.
+The presentation covers:
 
-### Attribution
+- Project, team, theme and country
+- Problem and affected users
+- Business use case and target customers
+- Data sources and hyperspectral-data status
+- Multi-source workflow
+- Actual notebook outputs
+- Reproduced headline result
+- Website prototype
+- Validation and limitations
+- Impact and incubation roadmap
 
-This project uses or references data and services from:
+## Team Members and Roles
 
-- [Copernicus Data Space Ecosystem](https://dataspace.copernicus.eu/)
-- [Microsoft Planetary Computer](https://planetarycomputer.microsoft.com/)
-- [USGS Landsat Missions](https://www.usgs.gov/landsat-missions)
-- [NASA POWER](https://power.larc.nasa.gov/)
-- [OpenStreetMap](https://www.openstreetmap.org/), where applicable
-- Original publishers of the referenced official reports, news articles, and public event videos
+- **Alia Alblooshi — Website and integration:** Developed the platform interface and connected the analytical outputs to the website.
+- **Fatima Alkaabi — Data pipeline and analysis:** Collected and processed the satellite, rainfall and supporting evidence; developed the notebook and multi-source screening workflow.
+- **Wadha Alkaabi — Satellite imagery:** Supported Sentinel-1, Sentinel-2 and Landsat data preparation and interpretation.
+- **Fatima Alnuaimi — Evidence and validation:** Reviewed weather information, event references, analytical results and project limitations.
+- **Mariam Alneyadi — Reproducibility and presentation:** Prepared repository documentation, tested the reviewer workflow and developed the submission presentation.
 
-Dimensions³ does not claim ownership of third-party satellite data, reports, news material, or public videos.
+The team collaborated on the project concept, workflow design, interpretation, validation, platform development and final submission.
+
+## Licence
+
+The project code and original documentation are released under the licence provided in the repository’s `LICENSE` file.
+
+Satellite imagery, weather information, reports and public evidence remain subject to their original providers’ terms and licences. No ownership of third-party data is claimed.
+
+## Attribution
+
+This project uses data and services from:
+
+- European Space Agency
+- Copernicus Programme
+- Copernicus Data Space Ecosystem
+- Microsoft Planetary Computer
+- United States Geological Survey
+- NASA POWER
+- OpenStreetMap contributors
+- Original publishers of cited official, news and public evidence
+
+## Responsible Use
+
+Dimensions³ is a proof-of-concept screening system. Its outputs are intended to support investigation, inspection prioritization and research.
+
+They should not be used as the sole basis for emergency declarations, public warnings, insurance decisions or operational response without authoritative validation.
