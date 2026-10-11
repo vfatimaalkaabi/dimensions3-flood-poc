@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha384-sHL9NAb7lN7rfvG5lfHpm643Xkcjzp4jFvuavGOndn6pjVqS6ny56CAt3nsEVT4H" crossorigin="anonymous">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH" crossorigin="anonymous"></script>
+<style>
+  body { margin: 0; background: #F5F7F7; color: #545454; font-family: 'Lexend', sans-serif; -webkit-font-smoothing: antialiased; }
+  a { color: #1E7F4E; text-decoration: none; }
+  a:hover { color: #1E7F4E; }
+  ::selection { background: rgba(53,180,118,.22); }
+  button:focus-visible, input:focus-visible { outline: 2px solid #1E7F4E; outline-offset: 2px; }
+  .leaflet-container { background: #1d2222; font-family: 'JetBrains Mono', monospace; }
+  .leaflet-control-attribution { font-size: 9px; }
+  @keyframes d3spin { to { transform: rotate(360deg); } }
+</style>
+</helmet>
+
+<div style="min-height: 100vh; display: flex; flex-direction: column;">
+
+  <header style="display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 20px 32px; flex-wrap: wrap;">
+    <div style="display: flex; align-items: center; gap: 28px;">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <div style="width: 34px; height: 34px; border-radius: 10px; background: #D5F8FF; display: flex; align-items: center; justify-content: center;"><svg width="22" height="22" viewBox="0 0 100 100"><polygon points="50,8 90,30 50,52 10,30" fill="#41DDFF"></polygon><polygon points="10,30 50,52 50,94 10,72" fill="#35B476"></polygon><polygon points="50,52 90,30 90,72 50,94" fill="#545454"></polygon></svg></div>
+        <span style="font-size: 17px; font-weight: 400; letter-spacing: -.02em;">Dimensions<sup style="font-size: .5em; top: -.6em; position: relative;">3</sup></span>
+      </div>
+      <nav style="display: flex; gap: 22px; font-size: 14px; font-weight: 300; color: #6B7070; flex-wrap: wrap;">
+        <a href="index.html" style="color: #6B7070;">Search</a>
+        <span style="color: #545454; font-weight: 400;">Analysis</span>
+        <a href="timeline.html" style="color: #6B7070;">Timeline</a>
+        <a href="city-map.html" style="color: #6B7070;">City map</a>
+        <a href="alerts.html" style="color: #6B7070;">Alerts</a>
+        <a href="report.html" style="color: #6B7070;">Report</a>
+      </nav>
+    </div>
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: #1E7F4E; background: rgba(53,180,118,.12); border-radius: 999px; padding: 6px 12px; white-space: nowrap;">Live data</span>
+      <div style="width: 34px; height: 34px; border-radius: 999px; background: #DDE3E3;"></div>
+    </div>
+  </header>
+
+  <main style="flex: 1; width: 100%; max-width: 1440px; margin: 0 auto; padding: 12px 32px 96px; box-sizing: border-box; display: flex; flex-direction: column; gap: 20px;">
+
+    <section style="background: #fff; border-radius: 22px; padding: 22px 24px; box-shadow: 0 2px 20px rgba(0,0,0,.05); display: flex; flex-direction: column; gap: 18px;">
+      <div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: .2em; text-transform: uppercase; color: #1E7F4E;">Event analysis · real satellite data</span>
+          <h1 style="margin: 0; font-size: 30px; font-weight: 300; letter-spacing: -.025em;">{{ evTitle }}</h1>
+          <span style="font-size: 13.5px; font-weight: 300; color: #454949;">{{ evPlace }} · {{ evNote }}</span>
+        </div>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end;">
+          <label style="display: flex; flex-direction: column; gap: 6px;">
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 9.5px; letter-spacing: .14em; text-transform: uppercase; color: #6B7070;">Before</span>
+            <input type="date" value="{{ before }}" max="{{ maxDate }}" onChange="{{ onBefore }}" style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #545454; background: #EEF2F2; border: none; border-radius: 12px; padding: 0 12px; min-height: 44px;">
+          </label>
+          <label style="display: flex; flex-direction: column; gap: 6px;">
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 9.5px; letter-spacing: .14em; text-transform: uppercase; color: #6B7070;">After</span>
+            <input type="date" value="{{ after }}" max="{{ maxDate }}" onChange="{{ onAfter }}" style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #545454; background: #EEF2F2; border: none; border-radius: 12px; padding: 0 12px; min-height: 44px;">
+          </label>
+          <button onClick="{{ runAnalysis }}" style="font-family: 'Lexend', sans-serif; font-size: 14px; font-weight: 500; color: #fff; background: {{ runBg }}; border: none; border-radius: 999px; padding: 0 24px; min-height: 44px; cursor: pointer; white-space: nowrap;">{{ runLabel }}</button>
+        </div>
+      </div>
+      <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+        <sc-for list="{{ events }}" as="e" hint-placeholder-count="6">
+          <button onClick="{{ e.onPick }}" style="display: flex; flex-direction: column; align-items: flex-start; gap: 2px; font-family: 'Lexend', sans-serif; text-align: left; color: {{ e.fg }}; background: {{ e.bg }}; border: 1px solid {{ e.border }}; border-radius: 14px; padding: 9px 14px; cursor: pointer; min-height: 44px;">
+            <span style="font-size: 13px;">{{ e.title }}</span>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #6B7070;">{{ e.date }}</span>
+          </button>
+        </sc-for>
+      </div>
+      <nav style="display: grid; padding-top: 18px; border-top: 1px solid #EEF2F2; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px;">
+        <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="3">
+          <button onClick="{{ t.onPick }}" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px; text-align: left; font-family: 'Lexend', sans-serif; color: {{ t.fg }}; background: {{ t.bg }}; border: 1px solid {{ t.border }}; border-radius: 18px; padding: 14px 18px; cursor: pointer; min-height: 64px;">
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: {{ t.kfg }};">{{ t.kicker }}</span>
+            <span style="font-size: 15.5px; font-weight: 400;">{{ t.label }}</span>
+            <span style="font-size: 12px; font-weight: 300; color: {{ t.sfg }};">{{ t.sub }}</span>
+          </button>
+        </sc-for>
+      </nav>
+    </section>
+
+    <section data-screen-label="Image analysis" style="display: {{ tabMapsDisplay }}; flex-wrap: wrap; gap: 20px; align-items: flex-start;">
+
+      <div style="flex: 100 1 520px; min-width: 0; display: flex; flex-direction: column; gap: 16px;">
+        <div style="background: #fff; border-radius: 22px; padding: 18px; box-shadow: 0 2px 20px rgba(0,0,0,.05); display: flex; flex-direction: column; gap: 14px;">
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <sc-for list="{{ styles }}" as="t" hint-placeholder-count="5">
+              <button onClick="{{ t.onPick }}" style="font-family: 'Lexend', sans-serif; font-size: 13px; font-weight: 300; color: {{ t.fg }}; background: {{ t.bg }}; border: 1px solid {{ t.border }}; border-radius: 999px; padding: 0 15px; min-height: 40px; cursor: pointer; white-space: nowrap;">{{ t.label }}</button>
+            </sc-for>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px;">
+            <div style="position: relative; border-radius: 14px; overflow: hidden; aspect-ratio: 4 / 3; min-height: 240px; background: #1d2222;">
+              <div ref="{{ mapARef }}" style="position: absolute; inset: 0;"></div>
+              <span style="position: absolute; left: 10px; top: 10px; z-index: 500; background: rgba(255,255,255,.94); border-radius: 9px; padding: 6px 10px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #545454; pointer-events: none;">Before · {{ beforeShown }}</span>
+            </div>
+            <div style="position: relative; border-radius: 14px; overflow: hidden; aspect-ratio: 4 / 3; min-height: 240px; background: #1d2222;">
+              <div ref="{{ mapBRef }}" style="position: absolute; inset: 0;"></div>
+              <span style="position: absolute; left: 10px; top: 10px; z-index: 500; background: #1E7F4E; color: #fff; border-radius: 9px; padding: 6px 10px; font-family: 'JetBrains Mono', monospace; font-size: 11px; pointer-events: none;">After · {{ afterShown }}</span>
+            </div>
+          </div>
+          <div style="display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #6B7070;">
+            <span>{{ styleSource }}</span>
+            <span>Dashed box = analysis area · maps move together</span>
+          </div>
+        </div>
+
+        <div style="background: #fff; border-radius: 22px; padding: 20px; box-shadow: 0 2px 20px rgba(0,0,0,.05); display: flex; flex-direction: column; gap: 14px;">
+          <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: #6B7070;">Pixel classification · MODIS bands 7-2-1</span>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #6B7070;">{{ gridNote }}</span>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;">
+            <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0;">
+              <canvas ref="{{ cvBRef }}" style="width: 100%; border-radius: 10px; background: #EEF2F2; image-rendering: pixelated; aspect-ratio: {{ cvAspect }};"></canvas>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #6B7070;">Before · classes</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0;">
+              <canvas ref="{{ cvARef }}" style="width: 100%; border-radius: 10px; background: #EEF2F2; image-rendering: pixelated; aspect-ratio: {{ cvAspect }};"></canvas>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #6B7070;">After · classes</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0;">
+              <canvas ref="{{ cvCRef }}" style="width: 100%; border-radius: 10px; background: #EEF2F2; image-rendering: pixelated; aspect-ratio: {{ cvAspect }};"></canvas>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #6B7070;">Change</span>
+            </div>
+          </div>
+          <div style="display: flex; gap: 14px; flex-wrap: wrap;">
+            <sc-for list="{{ legend }}" as="l" hint-placeholder-count="8">
+              <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 300; color: #454949; white-space: nowrap;"><span style="width: 11px; height: 11px; border-radius: 3px; background: {{ l.color }}; border: 1px solid rgba(0,0,0,.1);"></span>{{ l.label }}</span>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px;">
+          <sc-for list="{{ metrics }}" as="m" hint-placeholder-count="4">
+            <div style="min-width: 0; background: #fff; border-radius: 18px; padding: 18px; box-shadow: 0 2px 16px rgba(0,0,0,.05); display: flex; flex-direction: column; gap: 10px;">
+              <span style="font-size: 12.5px; font-weight: 300; color: #6B7070; line-height: 1.4;">{{ m.label }}</span>
+              <div style="display: flex; align-items: baseline; gap: 5px;">
+                <span style="font-size: 27px; font-weight: 300; letter-spacing: -.03em; font-feature-settings: 'tnum';">{{ m.value }}</span>
+                <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #6B7070;">{{ m.unit }}</span>
+              </div>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: {{ m.subFg }};">{{ m.sub }}</span>
+            </div>
+          </sc-for>
+        </div>
+
+      </div>
+
+      <aside style="flex: 1 1 320px; min-width: 0; background: #fff; border-radius: 22px; padding: 24px; box-shadow: 0 2px 20px rgba(0,0,0,.05); display: flex; flex-direction: column; gap: 18px;">
+        <div style="display: flex; align-items: center; gap: 9px;">
+          <span style="width: 7px; height: 7px; border-radius: 999px; background: {{ statusDot }};"></span>
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: #6B7070;">Automated analysis</span>
+          <sc-if value="{{ loading }}" hint-placeholder-val="{{ false }}">
+            <span style="width: 14px; height: 14px; border-radius: 999px; border: 2px solid #DDE3E3; border-top-color: #35B476; animation: d3spin .8s linear infinite; margin-left: auto;"></span>
+          </sc-if>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <div style="font-size: 19px; font-weight: 400; letter-spacing: -.02em; line-height: 1.3;">{{ headline }}</div>
+          <sc-for list="{{ paragraphs }}" as="p" hint-placeholder-count="2">
+            <div style="font-size: 13px; font-weight: 300; color: #454949; line-height: 1.65; text-wrap: pretty;">{{ p }}</div>
+          </sc-for>
+        </div>
+        <div style="height: 1px; background: #EEF2F2;"></div>
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: #6B7070;">Land cover share · clear pixels</span>
+          <sc-for list="{{ shares }}" as="s" hint-placeholder-count="4">
+            <div style="display: flex; flex-direction: column; gap: 5px;">
+              <div style="display: flex; justify-content: space-between; gap: 10px; font-size: 12.5px;">
+                <span style="display: inline-flex; align-items: center; gap: 7px;"><span style="width: 10px; height: 10px; border-radius: 3px; background: {{ s.color }};"></span>{{ s.label }}</span>
+                <span style="font-family: 'JetBrains Mono', monospace; font-size: 11.5px; font-feature-settings: 'tnum';">{{ s.b }} → {{ s.a }}</span>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 3px;">
+                <div style="height: 5px; border-radius: 999px; background: #EEF2F2; overflow: hidden;"><div style="width: {{ s.bw }}; height: 100%; background: #C9D1D1;"></div></div>
+                <div style="height: 5px; border-radius: 999px; background: #EEF2F2; overflow: hidden;"><div style="width: {{ s.aw }}; height: 100%; background: {{ s.color }};"></div></div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="height: 1px; background: #EEF2F2;"></div>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <div style="display: flex; justify-content: space-between; gap: 12px;">
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: #6B7070;">Confidence</span>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 11.5px;">{{ confLabel }}</span>
+          </div>
+          <div style="height: 6px; border-radius: 999px; background: #EEF2F2; overflow: hidden;"><div style="width: {{ confPct }}; height: 100%; background: #35B476;"></div></div>
+          <span style="font-size: 11.5px; font-weight: 300; color: #6B7070; line-height: 1.55;">{{ confNote }}</span>
+        </div>
+        <div style="height: 1px; background: #EEF2F2;"></div>
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: #6B7070;">Sources</span>
+          <span style="font-size: 11.5px; font-weight: 300; color: #454949; line-height: 1.6;">Imagery: NASA GIBS — MODIS Terra corrected reflectance (250 m), MODIS NDVI 16-day, MODIS land surface temperature, MODIS/VIIRS aerosol optical depth. Weather: Open-Meteo ERA5 archive. Air quality and pollutants (NO₂, SO₂, PM2.5): Copernicus CAMS via Open-Meteo.</span>
+        </div>
+      </aside>
+    </section>
+
+    <section data-screen-label="Climate & emissions" style="display: {{ tabEmisDisplay }}; flex-direction: column; gap: 16px;">
+      <div style="background: #fff; border-radius: 22px; padding: 22px 24px; box-shadow: 0 2px 20px rgba(0,0,0,.05); display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+        <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0;">
+          <span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: .2em; text-transform: uppercase; color: #1E7F4E;">Climate change & emissions · decoded from satellite images</span>
+          <h2 style="margin: 0; font-size: 26px; font-weight: 300; letter-spacing: -.02em;">Gases, particles, heat and vegetation, before and after</h2>
+          <span style="font-size: 13px; font-weight: 300; color: #454949; line-height: 1.55;">{{ atmArea }}</span>
+        </div>
+        <sc-if value="{{ atmLoading }}" hint-placeholder-val="{{ false }}">
+          <span style="display: inline-flex; align-items: center; gap: 8px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #6B7070;"><span style="width: 14px; height: 14px; border-radius: 999px; border: 2px solid #DDE3E3; border-top-color: #35B476; animation: d3spin .8s linear infinite;"></span>Decoding image pixels…</span>
+        </sc-if>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); gap: 16px;">
+        <sc-for list="{{ atmCards }}" as="g" hint-placeholder-count="7">
+          <div style="min-width: 0; background: #fff; border-radius: 20px; padding: 18px; box-shadow: 0 2px 16px rgba(0,0,0,.05); display: flex; flex-direction: column; gap: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap;">
+              <span style="font-size: 16px; font-weight: 500;">{{ g.name }}</span>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 9.5px; letter-spacing: .12em; text-transform: uppercase; color: #1E7F4E;">{{ g.role }}</span>
+            </div>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #6B7070;">{{ g.sat }}</span>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+              <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0;">
+                <div style="aspect-ratio: 1 / 1; border-radius: 10px; overflow: hidden; background: #EEF2F2;"><div style="width: 100%; height: 100%; background-image: {{ g.bgB }}; background-size: cover; background-position: center; image-rendering: pixelated;"></div></div>
+                <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #6B7070;">Before · {{ g.dB }}</span>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0;">
+                <div style="aspect-ratio: 1 / 1; border-radius: 10px; overflow: hidden; background: #EEF2F2;"><div style="width: 100%; height: 100%; background-image: {{ g.bgA }}; background-size: cover; background-position: center; image-rendering: pixelated;"></div></div>
+                <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #1E7F4E;">After · {{ g.dA }}</span>
+              </div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+              <div style="height: 6px; border-radius: 999px; background: linear-gradient(90deg, #F4F6EE, #9FD9B5 35%, #F0C060 60%, #E07A3A 80%, #8C2D19);"></div>
+              <div style="display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 9.5px; color: #6B7070;"><span>{{ g.lo }}</span><span>{{ g.unit }}</span><span>{{ g.hi }}</span></div>
+            </div>
+            <div style="display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;">
+              <span style="font-size: 24px; font-weight: 300; letter-spacing: -.02em; font-feature-settings: 'tnum';">{{ g.vB }} → {{ g.vA }}</span>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #6B7070;">{{ g.unit }}</span>
+              <span style="margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: {{ g.chgFg }};">{{ g.chg }}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; gap: 10px; padding-top: 10px; border-top: 1px solid #EEF2F2;">
+              <span style="font-size: 12px; font-weight: 300; color: #454949;">{{ g.enhLabel }}</span>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 11.5px; font-feature-settings: 'tnum';">{{ g.enh }}</span>
+            </div>
+            <span style="font-size: 11.5px; font-weight: 300; color: #6B7070; line-height: 1.55;">{{ g.note }}</span>
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #6B7070;">{{ g.cover }}</span>
+          </div>
+        </sc-for>
+      </div>
+      <div style="background: #fff; border-radius: 22px; padding: 22px 24px; box-shadow: 0 2px 20px rgba(0,0,0,.05); display: flex; flex-direction: column; gap: 10px;">
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase; color: #6B7070;">What the images show</span>
+        <sc-for list="{{ atmText }}" as="p" hint-placeholder-count="4">
+          <div style="display: flex; gap: 10px; font-size: 13.5px; font-weight: 300; color: #454949; line-height: 1.65;"><span style="color: #1E7F4E;">→</span><span style="text-wrap: pretty;">{{ p }}</span></div>
+        </sc-for>
+        <span style="font-size: 11.5px; font-weight: 300; color: #6B7070; line-height: 1.55; padding-top: 6px; border-top: 1px solid #EEF2F2;">Method: each layer is a NASA GIBS image tile. Pixel colours are converted back to physical values with the product's published colour map, averaged over a 7-day window around each date to fill cloud and orbit gaps, then compared inside the dashed analysis area and in the surrounding region.</span>
+      </div>
+    </section>
+
+    <section data-screen-label="Disaster patterns" style="display: {{ tabPatDisplay }}; flex-direction: column; gap: 16px;">
+      <div style="background: #fff; border-radius: 22px; padding: 22px 24px; box-shadow: 0 2px 20px rgba(0,0,0,.05); display: flex; flex-direction: column; gap: 6px;">
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: .2em; text-transform: uppercase; color: #1E7F4E;">Disaster monitoring · spatial pattern of change</span>
+        <h2 style="margin: 0; font-size: 26px; font-weight: 300; letter-spacing: -.02em;">{{ patTitle }}</h2>
+        <span style="font-size: 13px; font-weight: 300; color: #454949;">{{ patSub }}</span>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start;">
+        <div style="flex: 3 1 420px; max-width: 760px; min-width: 0; background: #fff; border-radius: 22px; padding: 18px; box-shadow: 0 2px 20px rgba(0,0,0,.05); display: flex; flex-direction: column; gap: 12px;">
+          <div style="border-radius: 12px; overflow: hidden; background: #EEF2F2; aspect-ratio: {{ patAspect }}; max-height: 520px; display: flex; justify-content: center;"><div style="width: 100%; height: 100%; background-image: {{ patBg }}; background-size: contain; background-repeat: no-repeat; background-position: center; image-rendering: pixelated;"></div></div>
+          <div style="display: flex; gap: 14px; flex-wrap: wrap;">
+            <sc-for list="{{ patLegend }}" as="l" hint-placeholder-count="4">
+              <span style="display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 300; color: #454949; white-space: nowrap;"><span style="width: 11px; height: 11px; border-radius: 3px; background: {{ l.color }};"></span>{{ l.label }}</span>
+            </sc-for>
+          </div>
+        </div>
+        <div style="flex: 2 1 320px; min-width: 0; background: #fff; border-radius: 22px; padding: 20px; box-shadow: 0 2px 20px rgba(0,0,0,.05); display: flex; flex-direction: column;">
+          <sc-for list="{{ patStats }}" as="p" hint-placeholder-count="7">
+            <div style="display: flex; flex-direction: column; gap: 3px; padding: 11px 0; border-bottom: 1px solid #EEF2F2;">
+              <div style="display: flex; justify-content: space-between; gap: 12px;"><span style="font-size: 12.5px; font-weight: 300; color: #6B7070;">{{ p.label }}</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 12.5px; text-align: right; font-feature-settings: 'tnum';">{{ p.value }}</span></div>
+              <span style="font-size: 11.5px; font-weight: 300; color: #454949; line-height: 1.5;">{{ p.note }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start;">
+        <div style="flex: 1 1 420px; min-width: 0; background: #fff; border-radius: 22px; padding: 20px; box-shadow: 0 2px 20px rgba(0,0,0,.05); display: flex; flex-direction: column; gap: 12px;">
+          <div style="display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap;"><span style="font-size: 14px; font-weight: 400;">Transition matrix</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #6B7070;">km² · rows = before, columns = after</span></div>
+          <div style="display: flex; flex-direction: column; gap: 4px; overflow-x: auto;">
+            <div style="display: grid; grid-template-columns: 110px repeat(4, minmax(64px, 1fr)); gap: 4px; font-family: 'JetBrains Mono', monospace; font-size: 9.5px; letter-spacing: .1em; text-transform: uppercase; color: #6B7070;">
+              <span></span>
+              <sc-for list="{{ matHead }}" as="h" hint-placeholder-count="4"><span style="text-align: center;">{{ h }}</span></sc-for>
+            </div>
+            <sc-for list="{{ matRows }}" as="row" hint-placeholder-count="4">
+              <div style="display: grid; grid-template-columns: 110px repeat(4, minmax(64px, 1fr)); gap: 4px; align-items: center;">
+                <span style="font-size: 12px; color: #454949;">{{ row.label }}</span>
+                <sc-for list="{{ row.cells }}" as="c" hint-placeholder-count="4">
+                  <span style="text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 11.5px; padding: 10px 4px; border-radius: 8px; background: {{ c.bg }}; color: {{ c.fg }}; font-feature-settings: 'tnum';">{{ c.v }}</span>
+                </sc-for>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="flex: 1 1 360px; min-width: 0; background: #fff; border-radius: 22px; padding: 20px; box-shadow: 0 2px 20px rgba(0,0,0,.05); display: flex; flex-direction: column; gap: 10px;">
+          <div style="display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap;"><span style="font-size: 14px; font-weight: 400;">Hotspot cells</span><span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #6B7070;">grid on the map · ranked by area</span></div>
+          <sc-for list="{{ hotspots }}" as="h" hint-placeholder-count="5">
+            <div style="display: grid; grid-template-columns: 38px 1fr auto; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid #EEF2F2;">
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 500; color: #1E7F4E;">{{ h.id }}</span>
+              <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0;">
+                <span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: #6B7070;">{{ h.ll }}</span>
+                <div style="height: 5px; border-radius: 999px; background: #EEF2F2; overflow: hidden;"><div style="width: {{ h.w }}; height: 100%; background: {{ h.color }};"></div></div>
+              </div>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 11.5px; text-align: right; font-feature-settings: 'tnum';">{{ h.km }} · {{ h.pct }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      <div style="background: #D5F8FF; border-radius: 20px; padding: 20px 22px; display: flex; flex-direction: column; gap: 12px;">
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase; color: #545454;">Pattern signature · saved to the packet for comparison with future events</span>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <sc-for list="{{ sigChips }}" as="c" hint-placeholder-count="5">
+            <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #1d2222; background: rgba(255,255,255,.75); border-radius: 999px; padding: 6px 12px;">{{ c }}</span>
+          </sc-for>
+        </div>
+        <span style="font-size: 13.5px; font-weight: 300; color: #454949; line-height: 1.65; text-wrap: pretty;">{{ sigText }}</span>
+      </div>
+    </section>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const GIBS = 'https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/';
+const LAYERS = {
+  tc: { label: 'True color', id: 'MODIS_Terra_CorrectedReflectance_TrueColor', lvl: 9, ext: 'jpg', src: 'MODIS Terra corrected reflectance, true color · 250 m · daily' },
+  b721: { label: 'Water & flood', id: 'MODIS_Terra_CorrectedReflectance_Bands721', lvl: 9, ext: 'jpg', src: 'MODIS Terra bands 7-2-1 · water shows dark blue/black, vegetation green · 250 m · daily' },
+  ndvi: { label: 'Vegetation (NDVI)', id: 'MODIS_Terra_L3_NDVI_16Day', lvl: 9, ext: 'png', src: 'MODIS Terra NDVI · 250 m · 16-day composite', snap: 16 },
+  lst: { label: 'Surface temperature', id: 'MODIS_Terra_Land_Surface_Temp_Day', lvl: 7, ext: 'png', src: 'MODIS Terra land surface temperature, day · 1 km · daily' },
+  aod: { label: 'Aerosols & dust', id: 'MODIS_Combined_Value_Added_AOD', lvl: 6, ext: 'png', src: 'MODIS Terra+Aqua aerosol optical depth · 10 km · daily' }
+};
+const EVENTS = [
+  { id: 'uae24', title: 'UAE record rainfall', date: '16 Apr 2024', place: 'Dubai · Sharjah · Al Ain, UAE', note: 'heaviest rainfall since records began in 1949', bbox: [54.95, 24.05, 56.05, 25.40], before: '2024-04-10', after: '2024-04-19', style: 'b721', kind: 'flood' },
+  { id: 'shaheen', title: 'Cyclone Shaheen', date: '3 Oct 2021', place: 'Al Batinah coast, Oman', note: 'landfall as a cyclone near Al Khaboura', bbox: [56.30, 23.55, 57.65, 24.65], before: '2021-09-28', after: '2021-10-06', style: 'b721', kind: 'flood' },
+  { id: 'jeddah22', title: 'Jeddah flash flood', date: '24 Nov 2022', place: 'Jeddah, Saudi Arabia', note: 'over 170 mm in six hours', bbox: [39.05, 21.30, 39.45, 21.80], before: '2022-11-19', after: '2022-11-25', style: 'b721', kind: 'flood' },
+  { id: 'kuwait22', title: 'Shamal dust storm', date: '16 May 2022', place: 'Kuwait and southern Iraq', note: 'one of a series of severe dust storms in spring 2022', bbox: [46.55, 28.55, 48.55, 30.15], before: '2022-05-10', after: '2022-05-16', style: 'aod', kind: 'dust' },
+  { id: 'alain', title: 'Al Ain oasis vegetation', date: 'Jan vs Jul 2024', place: 'Al Ain, Abu Dhabi, UAE', note: 'seasonal vegetation stress', bbox: [55.55, 24.05, 55.90, 24.35], before: '2024-01-17', after: '2024-07-19', style: 'ndvi', kind: 'veg' },
+  { id: 'jebelali', title: 'Jebel Ali industrial area', date: 'Jun 2023 vs Jun 2025', place: 'Jebel Ali, Dubai, UAE', note: 'port, free zone, power and desalination complex', bbox: [54.98, 24.92, 55.20, 25.07], before: '2023-06-15', after: '2025-06-15', style: 'b721', kind: 'industry' },
+  { id: 'ruwais', title: 'Ruwais Industrial City', date: 'Jun 2023 vs Jun 2025', place: 'Al Dhafra, Abu Dhabi, UAE', note: 'refinery and petrochemical complex', bbox: [52.62, 24.05, 52.82, 24.16], before: '2023-06-15', after: '2025-06-15', style: 'tc', kind: 'industry' },
+  { id: 'riyadh', title: 'Riyadh summer heat', date: 'Feb vs Jul 2024', place: 'Riyadh, Saudi Arabia', note: 'urban surface heating', bbox: [46.45, 24.50, 46.95, 24.95], before: '2024-02-15', after: '2024-07-15', style: 'lst', kind: 'heat' }
+];
+const CLS = [
+  { key: 'nodata', label: 'No data', color: null },
+  { key: 'water', label: 'Water', color: [31, 95, 168] },
+  { key: 'veg', label: 'Vegetation', color: [53, 180, 118] },
+  { key: 'bare', label: 'Bare / built', color: [217, 203, 176] },
+  { key: 'cloud', label: 'Cloud', color: [255, 255, 255] },
+  { key: 'burn', label: 'Dark soil / burn', color: [107, 58, 42] }
+];
+const CHG = { newwater: [28, 111, 209], lostwater: [201, 154, 46], veggain: [53, 180, 118], vegloss: [181, 101, 29], other: [154, 163, 163], stable: [230, 235, 235], masked: [201, 209, 209] };
+
+const toWorld = (lon, lat, z) => { const n = 256 * Math.pow(2, z); const s = Math.sin(lat * Math.PI / 180); return [(lon + 180) / 360 * n, (0.5 - Math.log((1 + s) / (1 - s)) / (4 * Math.PI)) * n]; };
+function snap16(d) { const t = new Date(d + 'T00:00:00Z'), y = t.getUTCFullYear(), doy = Math.floor((t - Date.UTC(y, 0, 1)) / 864e5); return new Date(Date.UTC(y, 0, 1 + Math.floor(doy / 16) * 16)).toISOString().slice(0, 10); }
+const dateFor = (style, d) => (LAYERS[style].snap ? snap16(d) : d);
+const tileUrl = (style, d) => GIBS + LAYERS[style].id + '/default/' + dateFor(style, d) + '/GoogleMapsCompatible_Level' + LAYERS[style].lvl + '/{z}/{y}/{x}.' + LAYERS[style].ext;
+const addDays = (d, n) => new Date(Date.parse(d + 'T00:00:00Z') + n * 864e5).toISOString().slice(0, 10);
+const fmtD = d => { const t = new Date(d + 'T00:00:00Z'); return t.getUTCDate() + ' ' + ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][t.getUTCMonth()] + ' ' + t.getUTCFullYear(); };
+const f1 = v => (Math.abs(v) >= 100 ? Math.round(v).toLocaleString('en-US') : v.toFixed(1));
+const fk = v => (Math.abs(v) < 1 ? 'under 1' : f1(v));
+
+async function mosaic(style, date, bbox, z) {
+  const L = LAYERS[style];
+  const [x0, y0] = toWorld(bbox[0], bbox[3], z), [x1, y1] = toWorld(bbox[2], bbox[1], z);
+  const w = Math.ceil(x1 - x0), h = Math.ceil(y1 - y0);
+  const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+  const ctx = cv.getContext('2d', { willReadFrequently: true });
+  const jobs = [];
+  for (let tx = Math.floor(x0 / 256); tx <= Math.floor(x1 / 256); tx++) for (let ty = Math.floor(y0 / 256); ty <= Math.floor(y1 / 256); ty++) {
+    const url = GIBS + L.id + '/default/' + dateFor(style, date) + '/GoogleMapsCompatible_Level' + L.lvl + '/' + z + '/' + ty + '/' + tx + '.' + L.ext;
+    jobs.push(fetch(url).then(r => (r.ok ? r.blob() : null)).then(b => (b ? createImageBitmap(b) : null)).then(bmp => { if (bmp) ctx.drawImage(bmp, tx * 256 - x0, ty * 256 - y0); }).catch(() => null));
+  }
+  await Promise.all(jobs);
+  return { data: ctx.getImageData(0, 0, w, h).data, w, h };
+}
+
+function classify(r, g, b, a, tr, tg, tb) {
+  if (a < 10 || (r + g + b) < 6) return 0;
+  const tAvg = (tr + tg + tb) / 3, tSpan = Math.max(tr, tg, tb) - Math.min(tr, tg, tb);
+  if ((tAvg > 205 && tSpan < 40) || (b > 160 && g > 160 && r < 150)) return 4;
+  const tcBlue = tb >= tr - 4;
+  if ((g < 60 && r < 60) || (tcBlue && g < 90 && r < 75 && b >= g - 5)) return 1;
+  if (g > 90 && g > r + 30 && g > b + 25) return 2;
+  if (tcBlue && r < 90 && b > r + 10 && g < b + 30) return 1;
+  if (r > g + 15 && r < 150 && g < 100) return 5;
+  return 3;
+}
+
+const ATM = [
+  { key: 'no2', name: 'Nitrogen dioxide (NO₂)', role: 'Combustion emissions', id: 'TROPOMI_L2_Nitrogen_Dioxide_Tropospheric_Column', cm: 'OMI_Nitrogen_Dioxide_Tropo_Column.xml', lvl: 6, win: 3, unit: '×10¹⁵ molec/cm²', scale: 1e-15, dp: 2, rel: true, sat: 'Sentinel-5P TROPOMI · tropospheric column · ~5 km', note: 'Emitted wherever fuel is burned: power plants, traffic, shipping, flaring. Lifetime of hours, so it stays close to its source.' },
+  { key: 'so2', name: 'Sulphur dioxide (SO₂)', role: 'Industry · fuel oil', id: 'OMPS_SO2_Planetary_Boundary_Layer', cm: 'OMPS_SO2_Planetary_Boundary_Layer.xml', lvl: 6, win: 3, unit: 'DU', scale: 1, dp: 2, rel: false, sat: 'Suomi NPP OMPS · boundary layer · ~50 km', note: 'From refining, smelting and high-sulphur fuel. Forms sulphate aerosol, which cools locally but harms health. Noisy below ~0.5 DU.' },
+  { key: 'co', name: 'Carbon monoxide (CO)', role: 'Incomplete combustion', id: 'AIRS_L3_Carbon_Monoxide_500hPa_Volume_Mixing_Ratio_Daily_Day', cm: 'AIRS_Carbon_Monoxide_Volume_Mixing_Ratio.xml', lvl: 6, win: 3, unit: 'ppbv', scale: 1, dp: 0, rel: true, sat: 'Aqua AIRS · 500 hPa · 1° grid', note: 'Marks inefficient burning and fires. Converts to CO₂ over weeks, so it also tracks regional pollution transport.' },
+  { key: 'ch4', name: 'Methane (CH₄)', role: 'Greenhouse gas', id: 'AIRS_L3_Methane_400hPa_Volume_Mixing_Ratio_Daily_Day', cm: 'AIRS_Methane_Volume_Mixing_Ratio.xml', lvl: 6, win: 3, unit: 'ppbv', scale: 1, dp: 0, rel: true, sat: 'Aqua AIRS · 400 hPa · 1° grid', note: 'About 80 times the warming power of CO₂ over 20 years. Oil and gas, landfills and wastewater are the main regional sources.' },
+  { key: 'aod', name: 'Aerosol optical depth', role: 'Particles · dust · haze', id: 'MODIS_Combined_Value_Added_AOD', cm: 'MODIS_Combined_Value_Added_AOD.xml', lvl: 6, win: 3, unit: 'AOD 550 nm', scale: 1, dp: 2, rel: true, sat: 'MODIS Terra + Aqua · ~10 km', note: 'How much sunlight particles block. Combines desert dust, smoke and pollution; above ~0.5 the sky is visibly hazy.' },
+  { key: 'lst', name: 'Land surface temperature', role: 'Heat · climate', id: 'MODIS_Terra_Land_Surface_Temp_Day', cm: 'MODIS_Land_Surface_Temp.xml', lvl: 7, win: 3, unit: '°C', scale: 1, off: -273.15, dp: 1, rel: false, sat: 'MODIS Terra · daytime · 1 km', note: 'Skin temperature of the ground. Sand, roofs and tarmac run much hotter than air; vegetation and water run cooler.' },
+  { key: 'ndvi', name: 'Vegetation index (NDVI)', role: 'Carbon uptake', id: 'MODIS_Terra_L3_NDVI_16Day', cm: 'MODIS_L3_NDVI.xml', lvl: 9, z: 8, win: 0, snap: true, unit: 'NDVI', scale: 1, dp: 3, rel: false, sat: 'MODIS Terra · 16-day composite · 250 m', note: 'Green, photosynthesising vegetation scores above ~0.3. Losing it removes a carbon sink and raises surface heat.' }
+];
+function blobUrl(cv) { const d = atob(cv.toDataURL('image/png').split(',')[1]); const u = new Uint8Array(d.length); for (let i = 0; i < d.length; i++) u[i] = d.charCodeAt(i); return URL.createObjectURL(new Blob([u], { type: 'image/png' })); }
+const cmCache = {};
+async function colormap(file) {
+  if (cmCache[file]) return cmCache[file];
+  const x = await (await fetch('https://gibs.earthdata.nasa.gov/colormaps/v1.3/' + file)).text();
+  const m = new Map();
+  for (const mm of x.matchAll(/<ColorMapEntry ([^>]+?)\/>/g)) {
+    const a = mm[1]; if (/transparent="true"/.test(a)) continue;
+    const rgb = a.match(/rgb="(\d+),(\d+),(\d+)"/), v = (a.match(/ value="([^"]+)"/) || [])[1];
+    if (!rgb || !v) continue;
+    const p = v.replace(/[\[\]()]/g, '').split(',').map(q => parseFloat(q));
+    let lo = p[0], hi = p.length > 1 ? p[1] : p[0]; if (!isFinite(lo)) lo = hi; if (!isFinite(hi)) hi = lo;
+    const val = (lo + hi) / 2; if (isFinite(val)) m.set((+rgb[1] << 16) | (+rgb[2] << 8) | +rgb[3], val);
+  }
+  cmCache[file] = m; return m;
+}
+async function rawMosaic(A, date, bbox, z) {
+  const [x0, y0] = toWorld(bbox[0], bbox[3], z), [x1, y1] = toWorld(bbox[2], bbox[1], z);
+  const w = Math.ceil(x1 - x0), h = Math.ceil(y1 - y0);
+  const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+  const ctx = cv.getContext('2d', { willReadFrequently: true }); ctx.imageSmoothingEnabled = false;
+  const jobs = [];
+  for (let tx = Math.floor(x0 / 256); tx <= Math.floor(x1 / 256); tx++) for (let ty = Math.floor(y0 / 256); ty <= Math.floor(y1 / 256); ty++) {
+    const url = GIBS + A.id + '/default/' + date + '/GoogleMapsCompatible_Level' + A.lvl + '/' + z + '/' + ty + '/' + tx + '.png';
+    jobs.push(fetch(url).then(r => (r.ok ? r.blob() : null)).then(b => (b ? createImageBitmap(b) : null)).then(bmp => { if (bmp) ctx.drawImage(bmp, tx * 256 - x0, ty * 256 - y0); }).catch(() => null));
+  }
+  await Promise.all(jobs);
+  return { data: ctx.getImageData(0, 0, w, h).data, w, h, x0, y0 };
+}
+const RAMP = [[0, [244, 246, 238]], [0.35, [159, 217, 181]], [0.6, [240, 192, 96]], [0.8, [224, 122, 58]], [1, [140, 45, 25]]];
+const NDVI_RAMP = [[0, [222, 203, 160]], [0.4, [214, 222, 160]], [0.7, [83, 180, 110]], [1, [20, 90, 50]]];
+const rampAt = (ramp, u) => { u = Math.max(0, Math.min(1, u)); for (let i = 1; i < ramp.length; i++) if (u <= ramp[i][0]) { const [a, ca] = ramp[i - 1], [b, cb] = ramp[i], k = (u - a) / (b - a || 1); return ca.map((c, j) => Math.round(c + (cb[j] - c) * k)); } return ramp[ramp.length - 1][1]; };
+function heatImg(val, w, h, rect, lo, hi, ramp) {
+  const cv = document.createElement('canvas'); cv.width = w; cv.height = h; const ctx = cv.getContext('2d'); const im = ctx.createImageData(w, h);
+  for (let i = 0; i < w * h; i++) { const v = val[i], k = i * 4; const c = isNaN(v) ? [214, 220, 220] : rampAt(ramp, (v - lo) / (hi - lo || 1)); im.data[k] = c[0]; im.data[k + 1] = c[1]; im.data[k + 2] = c[2]; im.data[k + 3] = 255; }
+  ctx.putImageData(im, 0, 0);
+  const sc = Math.max(1, Math.round(360 / Math.max(w, h))); const o = document.createElement('canvas'); o.width = w * sc; o.height = h * sc; const oc = o.getContext('2d'); oc.imageSmoothingEnabled = false; oc.drawImage(cv, 0, 0, w * sc, h * sc);
+  oc.setLineDash([6, 5]); oc.lineWidth = 2; oc.strokeStyle = '#1d2222'; oc.strokeRect(rect[0] * sc + 1, rect[1] * sc + 1, (rect[2] - rect[0]) * sc - 2, (rect[3] - rect[1]) * sc - 2);
+  return blobUrl(o);
+}
+function computePatterns(e, cb, ca, w, h, z, pxKm2) {
+  const kind = e.kind;
+  const isHaz = (x, y) => (kind === 'flood' ? y === 1 && x !== 1 : kind === 'veg' ? x === 2 && y !== 2 : kind === 'industry' ? y === 3 && x !== 3 : x !== y);
+  const label = { flood: 'new surface water', veg: 'vegetation loss', industry: 'new bare or built surface' }[kind] || 'surface change';
+  const hcol = { flood: [28, 111, 209], veg: [181, 101, 29], industry: [138, 109, 59] }[kind] || [224, 122, 58];
+  const n = w * h, haz = new Uint8Array(n), TR = [1, 2, 3, 5], mat = TR.map(() => TR.map(() => 0)), from = {};
+  let nh = 0, nv = 0, sx = 0, sy = 0;
+  for (let i = 0; i < n; i++) { const x = cb[i], y = ca[i]; if (!x || !y || x === 4 || y === 4) continue; nv++; const fi = TR.indexOf(x), ti = TR.indexOf(y); if (fi >= 0 && ti >= 0) mat[fi][ti]++; if (isHaz(x, y)) { haz[i] = 1; nh++; sx += i % w; sy += (i / w) | 0; from[x] = (from[x] || 0) + 1; } }
+  const lab = new Int32Array(n), sizes = [], st = []; let nc = 0;
+  for (let i = 0; i < n; i++) if (haz[i] && !lab[i]) { nc++; let sz = 0; lab[i] = nc; st.push(i); while (st.length) { const j = st.pop(); sz++; const jx = j % w; const nb = [j - w, j + w, jx > 0 ? j - 1 : -1, jx < w - 1 ? j + 1 : -1]; for (const k of nb) if (k >= 0 && k < n && haz[k] && !lab[k]) { lab[k] = nc; st.push(k); } } sizes.push(sz); }
+  let big = 0; sizes.forEach((s, i) => { if (s > sizes[big]) big = i; });
+  const sig = sizes.filter(s => s >= 3);
+  const tgt = kind === 'flood' ? 1 : kind === 'veg' || kind === 'industry' ? 3 : 0; let adj = 0;
+  if (tgt) for (let i = 0; i < n; i++) if (haz[i]) { const ix = i % w; if ((i - w >= 0 && cb[i - w] === tgt) || (i + w < n && cb[i + w] === tgt) || (ix > 0 && cb[i - 1] === tgt) || (ix < w - 1 && cb[i + 1] === tgt)) adj++; }
+  const cols = 6, rows = Math.max(3, Math.min(6, Math.round(6 * h / w)));
+  const cells = Array.from({ length: rows * cols }, (_, k) => ({ r: (k / cols) | 0, c: k % cols, v: 0, hz: 0 }));
+  for (let i = 0; i < n; i++) { const x = cb[i], y = ca[i]; if (!x || !y || x === 4 || y === 4) continue; const c = Math.min(cols - 1, Math.floor((i % w) * cols / w)), r = Math.min(rows - 1, Math.floor(((i / w) | 0) * rows / h)); const cell = cells[r * cols + c]; cell.v++; if (haz[i]) cell.hz++; }
+  const [x0, y0] = toWorld(e.bbox[0], e.bbox[3], z), N = 256 * Math.pow(2, z);
+  const ll = (px, py) => [(x0 + px) / N * 360 - 180, Math.atan(Math.sinh(Math.PI * (1 - 2 * (y0 + py) / N))) * 180 / Math.PI];
+  const cid = cl => 'ABCDEF'[cl.c] + (cl.r + 1);
+  const cv = document.createElement('canvas'); cv.width = w; cv.height = h; const ctx = cv.getContext('2d'); const im = ctx.createImageData(w, h);
+  const dark = hcol.map(c => Math.round(c * 0.55));
+  for (let i = 0; i < n; i++) { const x = cb[i], y = ca[i], k = i * 4; let c; if (!x || !y || x === 4 || y === 4) c = [214, 220, 220]; else if (haz[i]) c = lab[i] === big + 1 ? dark : hcol; else if (x !== y) c = [176, 186, 186]; else c = [240, 243, 243]; im.data[k] = c[0]; im.data[k + 1] = c[1]; im.data[k + 2] = c[2]; im.data[k + 3] = 255; }
+  ctx.putImageData(im, 0, 0);
+  const sc = Math.max(1, Math.round(760 / w)), o = document.createElement('canvas'); o.width = w * sc; o.height = h * sc; const oc = o.getContext('2d'); oc.imageSmoothingEnabled = false; oc.drawImage(cv, 0, 0, w * sc, h * sc);
+  oc.strokeStyle = 'rgba(29,34,34,.35)'; oc.lineWidth = 1; oc.font = '500 ' + Math.max(11, Math.round(o.width / 60)) + 'px JetBrains Mono, monospace'; oc.fillStyle = '#1d2222';
+  for (let c = 1; c < cols; c++) { const X = Math.round(c * o.width / cols) + 0.5; oc.beginPath(); oc.moveTo(X, 0); oc.lineTo(X, o.height); oc.stroke(); }
+  for (let r = 1; r < rows; r++) { const Y = Math.round(r * o.height / rows) + 0.5; oc.beginPath(); oc.moveTo(0, Y); oc.lineTo(o.width, Y); oc.stroke(); }
+  cells.forEach(cl => oc.fillText(cid(cl), cl.c * o.width / cols + 6, cl.r * o.height / rows + 16));
+  const cx = nh ? sx / nh : w / 2, cy = nh ? sy / nh : h / 2, dx = (cx - w / 2) / (w / 2), dy = (cy - h / 2) / (h / 2);
+  const dir = Math.hypot(dx, dy) < 0.15 ? 'centre of the area' : ['east', 'south-east', 'south', 'south-west', 'west', 'north-west', 'north', 'north-east'][Math.round(((Math.atan2(dy, dx) * 180 / Math.PI) + 360) % 360 / 45) % 8] + ' of the area';
+  const ranked = cells.filter(c => c.hz > 0).sort((a, b) => b.hz - a.hz);
+  const top3 = ranked.slice(0, 3).reduce((a, c) => a + c.hz, 0);
+  return { label, hcol, dark, img: blobUrl(o), aspect: w + ' / ' + h, nh, nv, km: nh * pxKm2, share: nv ? nh / nv : 0, nc, nsig: sig.length,
+    bigKm: sizes.length ? sizes[big] * pxKm2 : 0, bigShare: nh ? (sizes[big] || 0) / nh : 0, meanKm: sizes.length ? nh / sizes.length * pxKm2 : 0,
+    adj: nh ? adj / nh : 0, tgt, dir, cent: ll(cx, cy), from, mat: mat.map(r => r.map(v => v * pxKm2)), pxKm2, cells, ranked, top3Share: nh ? top3 / nh : 0, rows, cols,
+    hot: ranked.slice(0, 5).map(cl => { const [lo, la] = ll((cl.c + 0.5) * w / cols, (cl.r + 0.5) * h / rows); return { id: cid(cl), lat: la, lon: lo, km: cl.hz * pxKm2, pct: cl.v ? cl.hz / cl.v : 0 }; }) };
+}
+
+class Component extends DCLogic {
+  state = { ev: 'uae24', before: EVENTS[0].before, after: EVENTS[0].after, style: EVENTS[0].style, loading: false, res: null, wx: null, aq: null, err: null, ranFor: null, tab: 'maps', atm: null, pat: null, atmLoading: false };
+  mapARef = React.createRef(); mapBRef = React.createRef();
+  cvBRef = React.createRef(); cvARef = React.createRef(); cvCRef = React.createRef();
+
+  componentDidMount() {
+    this.waitL = setInterval(() => { if (window.L && this.mapARef.current && this.mapBRef.current) { clearInterval(this.waitL); this.initMaps(); this.run(); } }, 60);
+  }
+  componentWillUnmount() { clearInterval(this.waitL); [this.mA, this.mB].forEach(m => m && m.remove()); (this.ros || []).forEach(r => r.disconnect()); }
+  componentDidUpdate() {
+    const s = this.state, p = this._prev || {};
+    this._prev = { style: s.style, before: s.before, after: s.after, ev: s.ev, res: s.res };
+    if (p.style !== s.style || p.before !== s.before || p.after !== s.after || p.ev !== s.ev) this.syncLayers(p.ev !== s.ev);
+    if (p.res !== s.res && s.res) this.paint();
+  }
+
+  ev() { return EVENTS.find(e => e.id === this.state.ev); }
+
+  initMaps() {
+    const L = window.L, e = this.ev();
+    const mk = el => L.map(el, { zoomControl: false, attributionControl: false, maxZoom: 11, minZoom: 4 });
+    this.mA = mk(this.mapARef.current); this.mB = mk(this.mapBRef.current);
+    L.control.zoom({ position: 'bottomright' }).addTo(this.mB);
+    L.control.attribution({ prefix: false }).addAttribution('NASA GIBS').addTo(this.mB);
+    let lock = false;
+    const sync = (from, to) => from.on('move', () => { if (lock) return; lock = true; to.setView(from.getCenter(), from.getZoom(), { animate: false }); lock = false; });
+    sync(this.mA, this.mB); sync(this.mB, this.mA);
+    this.ros = [this.mA, this.mB].map(m => { const ro = new ResizeObserver(() => m.invalidateSize()); ro.observe(m.getContainer()); return ro; });
+    this.syncLayers(true);
+  }
+
+  syncLayers(fit) {
+    const L = window.L; if (!this.mA) return;
+    const s = this.state, e = this.ev(), lv = LAYERS[s.style];
+    [[this.mA, s.before, 'lA', 'rA'], [this.mB, s.after, 'lB', 'rB']].forEach(([m, d, lk, rk]) => {
+      if (this[lk]) m.removeLayer(this[lk]);
+      if (this[rk]) m.removeLayer(this[rk]);
+      if (s.style !== 'tc') { if (!this['base' + lk]) this['base' + lk] = L.tileLayer(tileUrl('tc', d), { maxNativeZoom: 9, maxZoom: 11 }).addTo(m); else this['base' + lk].setUrl(tileUrl('tc', d)); }
+      else if (this['base' + lk]) { m.removeLayer(this['base' + lk]); this['base' + lk] = null; }
+      this[lk] = L.tileLayer(tileUrl(s.style, d), { maxNativeZoom: lv.lvl, maxZoom: 11, opacity: s.style === 'tc' || s.style === 'b721' ? 1 : 0.8 }).addTo(m);
+      this[rk] = L.rectangle([[e.bbox[1], e.bbox[0]], [e.bbox[3], e.bbox[2]]], { color: '#41DDFF', weight: 2, dashArray: '6 5', fill: false, interactive: false }).addTo(m);
+    });
+    if (fit) this.mA.fitBounds([[e.bbox[1], e.bbox[0]], [e.bbox[3], e.bbox[2]]], { padding: [10, 10] });
+  }
+
+  async run() {
+    const s = this.state, e = this.ev();
+    const key = e.id + s.before + s.after;
+    this.setState({ loading: true, err: null });
+    const span = Math.max(e.bbox[2] - e.bbox[0], e.bbox[3] - e.bbox[1]);
+    const z = span > 0.9 ? 8 : 9;
+    try {
+      const [b7, a7, bt, at, bn, an] = await Promise.all([
+        mosaic('b721', s.before, e.bbox, z), mosaic('b721', s.after, e.bbox, z),
+        mosaic('tc', s.before, e.bbox, z), mosaic('tc', s.after, e.bbox, z),
+        mosaic('ndvi', s.before, e.bbox, z), mosaic('ndvi', s.after, e.bbox, z)
+      ]);
+      const n = b7.w * b7.h, cb = new Uint8Array(n), ca = new Uint8Array(n);
+      let sea = 0;
+      const cntB = [0, 0, 0, 0, 0, 0], cntA = [0, 0, 0, 0, 0, 0];
+      for (let i = 0; i < n; i++) {
+        const k = i * 4;
+        if (bn.data[k + 3] < 10 && an.data[k + 3] < 10) { cb[i] = 0; ca[i] = 0; cntB[0]++; cntA[0]++; sea++; continue; }
+        cb[i] = classify(b7.data[k], b7.data[k + 1], b7.data[k + 2], b7.data[k + 3], bt.data[k], bt.data[k + 1], bt.data[k + 2]);
+        ca[i] = classify(a7.data[k], a7.data[k + 1], a7.data[k + 2], a7.data[k + 3], at.data[k], at.data[k + 1], at.data[k + 2]);
+        cntB[cb[i]]++; cntA[ca[i]]++;
+      }
+      let clear = 0; const chg = { newwater: 0, lostwater: 0, veggain: 0, vegloss: 0, other: 0, stable: 0 }; const both = [0, 0, 0, 0, 0, 0], bothA = [0, 0, 0, 0, 0, 0];
+      for (let i = 0; i < n; i++) {
+        const x = cb[i], y = ca[i];
+        if (!x || !y || x === 4 || y === 4) continue;
+        clear++; both[x]++; bothA[y]++;
+        if (x === y) chg.stable++;
+        else if (y === 1) chg.newwater++;
+        else if (x === 1) chg.lostwater++;
+        else if (y === 2) chg.veggain++;
+        else if (x === 2) chg.vegloss++;
+        else chg.other++;
+      }
+      const ndviShare = img => { let v = 0, t = 0; for (let i = 0; i < img.data.length; i += 4) { const r = img.data[i], g = img.data[i + 1], b = img.data[i + 2], a = img.data[i + 3]; if (a < 10) continue; t++; if (g > r + 8 && g > b) v++; } return t ? v / t : null; };
+      const lat = (e.bbox[1] + e.bbox[3]) / 2;
+      const pxKm2 = Math.pow(156543.03392 * Math.cos(lat * Math.PI / 180) / Math.pow(2, z) / 1000, 2);
+      const valid = n - cntB[0];
+      this.setState({ pat: computePatterns(e, cb, ca, b7.w, b7.h, z, pxKm2), res: { key, z, w: b7.w, h: b7.h, cb, ca, cntB, cntA, n, clear, both, bothA, chg, pxKm2,
+        cloudB: valid ? cntB[4] / valid : 0, cloudA: (n - cntA[0]) ? cntA[4] / (n - cntA[0]) : 0, nodata: cntA[0] / n,
+        ndviB: ndviShare(bn), ndviA: ndviShare(an), sea } });
+    } catch (err) { this.setState({ err: 'Imagery could not be loaded: ' + err.message }); }
+
+    const lon = ((e.bbox[0] + e.bbox[2]) / 2).toFixed(3), la = ((e.bbox[1] + e.bbox[3]) / 2).toFixed(3);
+    const ws = addDays(s.before, -2) < addDays(s.after, -45) ? addDays(s.after, -20) : addDays(s.before, -2);
+    const we = addDays(s.after, 1) > this.maxDate() ? this.maxDate() : addDays(s.after, 1);
+    try {
+      const r = await fetch('https://archive-api.open-meteo.com/v1/archive?latitude=' + la + '&longitude=' + lon + '&start_date=' + ws + '&end_date=' + we + '&daily=precipitation_sum,temperature_2m_max,wind_speed_10m_max&timezone=auto');
+      const j = await r.json(); this.setState({ wx: j.daily ? j : null });
+    } catch (x) { this.setState({ wx: null }); }
+    try {
+      const r = await fetch('https://air-quality-api.open-meteo.com/v1/air-quality?latitude=' + la + '&longitude=' + lon + '&start_date=' + ws + '&end_date=' + we + '&hourly=dust,aerosol_optical_depth,pm10');
+      const j = await r.json(); this.setState({ aq: j.hourly && j.hourly.dust && j.hourly.dust.some(v => v != null) ? j : null });
+    } catch (x) { this.setState({ aq: null }); }
+    if (e.kind === 'industry') {
+      const win = async (end) => {
+        const st = addDays(end, -29), en = end > this.maxDate() ? this.maxDate() : end;
+        const r = await fetch('https://air-quality-api.open-meteo.com/v1/air-quality?latitude=' + la + '&longitude=' + lon + '&start_date=' + st + '&end_date=' + en + '&hourly=nitrogen_dioxide,sulphur_dioxide,pm2_5,carbon_monoxide');
+        const j = await r.json(); const h = j.hourly || {};
+        const m = k => { const v = (h[k] || []).filter(x => x != null); return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null; };
+        return { no2: m('nitrogen_dioxide'), so2: m('sulphur_dioxide'), pm25: m('pm2_5'), co: m('carbon_monoxide'), from: st, to: en };
+      };
+      try { const [pb, pa] = await Promise.all([win(s.before), win(s.after)]); this.setState({ poll: { b: pb, a: pa } }); } catch (x) { this.setState({ poll: null }); }
+    } else this.setState({ poll: null });
+    this.setState({ loading: false, ranFor: key }, () => { if (this.state.res) this.paint(); });
+    this.runAtmos();
+  }
+
+  async runAtmos() {
+    const s = this.state, e = this.ev(), key = e.id + s.before + s.after;
+    this.atmKey = key; this.setState({ atmLoading: true });
+    const cx = (e.bbox[0] + e.bbox[2]) / 2, cy = (e.bbox[1] + e.bbox[3]) / 2;
+    const hx = Math.max((e.bbox[2] - e.bbox[0]) / 2 + 0.6, 0.9), hy = Math.max((e.bbox[3] - e.bbox[1]) / 2 + 0.6, 0.9);
+    const box = [cx - hx, cy - hy, cx + hx, cy + hy], mx = this.maxDate();
+    const out = await Promise.all(ATM.map(async A => {
+      try {
+        const cm = await colormap(A.cm), z = A.z || A.lvl;
+        const one = async d => {
+          const days = A.snap ? [snap16(d)] : Array.from({ length: 2 * A.win + 1 }, (_, i) => addDays(d, i - A.win)).filter(x => x <= mx);
+          const imgs = await Promise.all(days.map(dd => rawMosaic(A, dd, box, z)));
+          const { w, h, x0, y0 } = imgs[0], n = w * h, sum = new Float64Array(n), cnt = new Uint16Array(n);
+          imgs.forEach(im => { for (let i = 0; i < n; i++) { const k = i * 4; if (im.data[k + 3] < 200) continue; const v = cm.get((im.data[k] << 16) | (im.data[k + 1] << 8) | im.data[k + 2]); if (v == null) continue; sum[i] += v; cnt[i]++; } });
+          const val = new Float32Array(n).fill(NaN); let have = 0;
+          for (let i = 0; i < n; i++) if (cnt[i]) { val[i] = sum[i] / cnt[i] * A.scale + (A.off || 0); have++; }
+          const [sx0, sy0] = toWorld(e.bbox[0], e.bbox[3], z), [sx1, sy1] = toWorld(e.bbox[2], e.bbox[1], z);
+          const r0 = Math.floor(sx0 - x0), r1 = Math.max(r0 + 1, Math.ceil(sx1 - x0)), q0 = Math.floor(sy0 - y0), q1 = Math.max(q0 + 1, Math.ceil(sy1 - y0));
+          let ss = 0, sn = 0, bs = 0, bn = 0;
+          for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { const v = val[y * w + x]; if (isNaN(v)) continue; if (x >= r0 && x < r1 && y >= q0 && y < q1) { ss += v; sn++; } else { bs += v; bn++; } }
+          return { val, w, h, rect: [r0, q0, r1, q1], site: sn ? ss / sn : null, bg: bn ? bs / bn : null, cover: have / n, days: days.length, d0: days[0], d1: days[days.length - 1] };
+        };
+        const [b, a] = await Promise.all([one(s.before), one(s.after)]);
+        const all = []; [b, a].forEach(x => { for (let i = 0; i < x.val.length; i += 1) if (!isNaN(x.val[i])) all.push(x.val[i]); });
+        all.sort((p, q) => p - q);
+        const lo = all.length ? all[Math.floor(all.length * 0.02)] : 0, hi = all.length ? all[Math.floor(all.length * 0.98)] : 1;
+        const ramp = A.key === 'ndvi' ? NDVI_RAMP : RAMP;
+        const pack = x => ({ site: x.site, bg: x.bg, cover: x.cover, days: x.days, d0: x.d0, d1: x.d1, img: x.cover > 0 ? heatImg(x.val, x.w, x.h, x.rect, lo, hi, ramp) : '' });
+        return { key: A.key, b: pack(b), a: pack(a), lo, hi };
+      } catch (x) { return { key: A.key, err: true }; }
+    }));
+    if (this.atmKey !== key) return;
+    const atm = {}; out.forEach(o => { atm[o.key] = o; });
+    this.setState({ atm, atmLoading: false });
+  }
+
+  maxDate() { return new Date(Date.now() - 6 * 864e5).toISOString().slice(0, 10); }
+
+  paint() {
+    const r = this.state.res;
+    const draw = (cv, fn) => { if (!cv) return; cv.width = r.w; cv.height = r.h; const ctx = cv.getContext('2d'); const im = ctx.createImageData(r.w, r.h); for (let i = 0; i < r.n; i++) { const c = fn(i); if (!c) continue; im.data.set(c, i * 4); im.data[i * 4 + 3] = 255; } ctx.putImageData(im, 0, 0); };
+    draw(this.cvBRef.current, i => CLS[r.cb[i]].color);
+    draw(this.cvARef.current, i => CLS[r.ca[i]].color);
+    draw(this.cvCRef.current, i => {
+      const x = r.cb[i], y = r.ca[i];
+      if (!x || !y) return null;
+      if (x === 4 || y === 4) return CHG.masked;
+      if (x === y) return CHG.stable;
+      if (y === 1) return CHG.newwater; if (x === 1) return CHG.lostwater;
+      if (y === 2) return CHG.veggain; if (x === 2) return CHG.vegloss;
+      return CHG.other;
+    });
+  }
+
+  analysis() {
+    const s = this.state, e = this.ev(), r = s.res, wx = s.wx, aq = s.aq;
+    if (!r) return { headline: s.err || 'Loading real imagery for ' + e.title + '…', paragraphs: ['Fetching MODIS tiles for both dates and classifying every land pixel inside the analysis area.'], metrics: [], shares: [], conf: [0, 'Pending', ''] };
+    const km = c => c * r.pxKm2;
+    const clearKm = km(r.clear), pct = (c, t) => (t ? c / t * 100 : 0);
+    const wB = pct(r.both[1], r.clear), wA = pct(r.bothA[1], r.clear), vB = pct(r.both[2], r.clear), vA = pct(r.bothA[2], r.clear);
+    const newW = km(r.chg.newwater), lostW = km(r.chg.lostwater), vegL = km(r.chg.vegloss), vegG = km(r.chg.veggain);
+    const days = wx ? wx.daily.time : [], rain = wx ? wx.daily.precipitation_sum.map(v => v || 0) : [];
+    const inWin = days.map((d, i) => [d, rain[i]]).filter(([d]) => d >= s.before && d <= s.after);
+    const rainTot = inWin.reduce((a, [, v]) => a + v, 0);
+    const peak = inWin.reduce((a, b) => (b[1] > a[1] ? b : a), ['', -1]);
+    const tmax = wx ? Math.max(...wx.daily.temperature_2m_max.filter(v => v != null)) : null;
+    const wmax = wx ? Math.max(...wx.daily.wind_speed_10m_max.filter(v => v != null)) : null;
+    let dustPeak = null, dustDay = '';
+    if (aq) aq.hourly.dust.forEach((v, i) => { if (v != null && (dustPeak == null || v > dustPeak)) { dustPeak = v; dustDay = aq.hourly.time[i].slice(0, 10); } });
+    const cloudMax = Math.max(r.cloudB, r.cloudA) * 100;
+    const clearShare = pct(r.clear, r.n - r.cntA[0]);
+    const conf = clearShare < 25 ? [25, 'Low', 'Most of the area is cloud-covered on at least one date. Pick a clearer date.'] : clearShare < 60 ? [55, 'Moderate', Math.round(100 - clearShare) + '% of pixels are masked by cloud on one date; results describe the clear remainder.'] : [85, 'High', 'Both dates are mostly clear. MODIS 250 m pixels resolve large features, not individual streets.'];
+    const B = fmtD(s.before), A = fmtD(s.after);
+    let headline, paras = [];
+    if (e.kind === 'flood') {
+      const net = newW - lostW;
+      headline = net > 5 ? 'Surface water grew by a net ' + fk(net) + ' km² between ' + B + ' and ' + A + '.' : net < -5 ? 'Surface water fell by a net ' + fk(-net) + ' km² between ' + B + ' and ' + A + '.' : 'No substantial net change in surface water in clear pixels.';
+      paras.push('Within ' + f1(clearKm) + ' km² of pixels clear on both dates, water covered ' + wB.toFixed(1) + '% before and ' + wA.toFixed(1) + '% after: ' + fk(newW) + ' km² became water and ' + fk(lostW) + ' km² that was water is no longer classed as water.');
+      if (wx) paras.push('ERA5 records ' + rainTot.toFixed(0) + ' mm of rain at the area centre between the two images' + (peak[1] > 0 ? ', peaking at ' + peak[1].toFixed(0) + ' mm on ' + fmtD(peak[0]) : '') + '. Reanalysis grid cells are ~25 km wide and usually under-record local extremes.');
+    } else if (e.kind === 'veg') {
+      headline = vegL > vegG ? 'Vegetated area shrank by ' + f1(vegL - vegG) + ' km² from ' + B + ' to ' + A + '.' : 'Vegetated area grew by ' + f1(vegG - vegL) + ' km² from ' + B + ' to ' + A + '.';
+      paras.push('Vegetation covered ' + vB.toFixed(1) + '% of clear pixels before and ' + vA.toFixed(1) + '% after (bands 7-2-1). ' + (r.ndviB != null && r.ndviA != null ? 'The MODIS NDVI composite shows vegetated pixels moving from ' + (r.ndviB * 100).toFixed(1) + '% to ' + (r.ndviA * 100).toFixed(1) + '%.' : ''));
+      if (wx) paras.push('Maximum air temperature in the window reached ' + tmax.toFixed(1) + ' °C; total rainfall was ' + rainTot.toFixed(0) + ' mm.');
+    } else if (e.kind === 'dust') {
+      headline = dustPeak != null ? 'Surface dust peaked at ' + Math.round(dustPeak).toLocaleString('en-US') + ' µg/m³ on ' + fmtD(dustDay) + '.' : 'Dust event analysis';
+      paras.push('Haze raised the bright-pixel share in true color: ' + (r.cloudB * 100).toFixed(0) + '% of pixels read as cloud or thick haze before, ' + (r.cloudA * 100).toFixed(0) + '% after. Use the aerosol layer to see the plume itself.');
+      if (wx) paras.push('ERA5 peak wind speed in the window was ' + wmax.toFixed(0) + ' km/h, consistent with a shamal pushing dust south over Kuwait.');
+    } else if (e.kind === 'industry') {
+      const P = s.poll, ch = (k) => (P && P.b[k] != null && P.a[k] != null && P.b[k] ? (P.a[k] - P.b[k]) / P.b[k] * 100 : null);
+      const no2c = ch('no2'), so2c = ch('so2'), pmc = ch('pm25');
+      const sg = v => (v == null ? 'n/a' : (v >= 0 ? '+' : '−') + Math.abs(v).toFixed(0) + '%');
+      headline = P && P.a.no2 != null ? 'NO₂ averaged ' + P.a.no2.toFixed(1) + ' µg/m³ in the 30 days to ' + A + ' (' + sg(no2c) + ' vs ' + B + ').' : 'Industrial area analysis';
+      if (P) paras.push('30-day means from CAMS at the area centre. Before (to ' + B + '): NO₂ ' + (P.b.no2 != null ? P.b.no2.toFixed(1) : '—') + ', SO₂ ' + (P.b.so2 != null ? P.b.so2.toFixed(1) : '—') + ', PM2.5 ' + (P.b.pm25 != null ? P.b.pm25.toFixed(1) : '—') + ' µg/m³. After (to ' + A + '): NO₂ ' + (P.a.no2 != null ? P.a.no2.toFixed(1) : '—') + ', SO₂ ' + (P.a.so2 != null ? P.a.so2.toFixed(1) : '—') + ', PM2.5 ' + (P.a.pm25 != null ? P.a.pm25.toFixed(1) : '—') + ' µg/m³. Changes: NO₂ ' + sg(no2c) + ', SO₂ ' + sg(so2c) + ', PM2.5 ' + sg(pmc) + '.');
+      paras.push('On the ground, bare and built surface covers ' + pct(r.both[3], r.clear).toFixed(0) + '% → ' + pct(r.bothA[3], r.clear).toFixed(0) + '% of clear land pixels, vegetation ' + vB.toFixed(1) + '% → ' + vA.toFixed(1) + '%, and dark surfaces (tarmac, storage, burnt or wet ground) ' + pct(r.both[5], r.clear).toFixed(1) + '% → ' + pct(r.bothA[5], r.clear).toFixed(1) + '%.');
+      paras.push('CAMS cells are about 40 km wide, so pollutant values describe the wider area, including traffic and shipping, not a single facility. Coinciding changes do not show that the industrial site caused them.');
+    } else {
+      headline = 'Air temperature peaked at ' + (tmax != null ? tmax.toFixed(1) : '—') + ' °C in the second period.';
+      paras.push('Bare and built surface covers ' + pct(r.bothA[3], r.clear).toFixed(0) + '% of clear pixels, which store and re-radiate heat. Compare the surface temperature layer between the two dates to see where the city heats most.');
+      if (wx) paras.push('Total rainfall in the window: ' + rainTot.toFixed(0) + ' mm.');
+    }
+    if (r.sea / r.n > 0.05) paras.push('Open sea (' + Math.round(r.sea / r.n * 100) + '% of the box) is excluded using the MODIS land mask, so figures cover land and inland water only.');
+    if (cloudMax > 40) paras.push('Cloud masked ' + cloudMax.toFixed(0) + '% of one image. Masked pixels are excluded from change figures.');
+    const metrics = [
+      e.kind === 'industry' ? { label: 'Bare & built surface', value: pct(r.bothA[3], r.clear).toFixed(0), unit: '% of land', sub: 'was ' + pct(r.both[3], r.clear).toFixed(0) + '% · dark surfaces ' + pct(r.bothA[5], r.clear).toFixed(1) + '%', subFg: '#6B7070' } :
+      { label: 'Net surface water change', value: (newW - lostW >= 0 ? '+' : '−') + f1(Math.abs(newW - lostW)), unit: 'km²', sub: wB.toFixed(1) + '% → ' + wA.toFixed(1) + '% of clear area', subFg: newW - lostW > 5 ? '#1E7F4E' : '#6B7070' },
+      { label: 'Vegetation change', value: (vegG - vegL >= 0 ? '+' : '−') + f1(Math.abs(vegG - vegL)), unit: 'km²', sub: vB.toFixed(1) + '% → ' + vA.toFixed(1) + '%', subFg: '#6B7070' },
+      e.kind === 'industry' ? { label: 'NO₂, 30-day mean', value: s.poll && s.poll.a.no2 != null ? s.poll.a.no2.toFixed(1) : '—', unit: 'µg/m³', sub: s.poll && s.poll.b.no2 != null ? 'was ' + s.poll.b.no2.toFixed(1) + ' · SO₂ ' + (s.poll.a.so2 != null ? s.poll.a.so2.toFixed(1) : '—') + ' · PM2.5 ' + (s.poll.a.pm25 != null ? s.poll.a.pm25.toFixed(1) : '—') : 'CAMS', subFg: '#6B7070' }
+        : e.kind === 'dust' ? { label: 'Peak surface dust', value: dustPeak != null ? Math.round(dustPeak).toLocaleString('en-US') : '—', unit: 'µg/m³', sub: dustDay ? fmtD(dustDay) + ' · CAMS' : 'not available', subFg: '#6B7070' }
+        : { label: 'Rain between images', value: wx ? rainTot.toFixed(0) : '—', unit: 'mm', sub: peak[1] > 0 ? 'peak ' + peak[1].toFixed(0) + ' mm · ' + fmtD(peak[0]) : 'ERA5', subFg: '#6B7070' },
+      { label: 'Clear pixels analysed', value: f1(clearKm), unit: 'km²', sub: Math.round(r.clear).toLocaleString('en-US') + ' px · ' + (r.z === 8 ? '~500' : '~250') + ' m', subFg: '#6B7070' }
+    ];
+    const shares = [1, 2, 3, 5].map(i => ({ label: CLS[i].label, color: 'rgb(' + CLS[i].color.join(',') + ')', b: pct(r.both[i], r.clear).toFixed(1) + '%', a: pct(r.bothA[i], r.clear).toFixed(1) + '%', bw: pct(r.both[i], r.clear).toFixed(1) + '%', aw: pct(r.bothA[i], r.clear).toFixed(1) + '%' }));
+    return { headline, paragraphs: paras, metrics, shares, conf };
+  }
+
+  renderVals() {
+    const s = this.state, e = this.ev(), an = this.analysis(), r = s.res;
+    const pill = on => (on ? { bg: 'rgba(53,180,118,.08)', fg: '#1E7F4E', border: '#1E7F4E' } : { bg: 'transparent', fg: '#454949', border: '#DDE3E3' });
+    const wx = s.wx;
+    const rainMax = wx ? Math.max(5, ...wx.daily.precipitation_sum.map(v => v || 0)) : 1;
+    const stale = r && s.ranFor && s.ranFor !== e.id + s.before + s.after;
+    const TABS = [['maps', 'Image analysis', 'Maps & classification', 'Five map styles, land-cover classes and change'], ['emis', 'Climate change', 'Emissions & climate', 'Gases, particles, heat and vegetation from the images'], ['pat', 'Disaster monitoring', 'Patterns of change', 'Where, how much and in what shape the hazard spread']];
+    const tabs = TABS.map(([k, kicker, label, sub]) => { const on = s.tab === k; return { kicker, label, sub, bg: on ? '#1E7F4E' : '#fff', fg: on ? '#fff' : '#1d2222', border: on ? '#1E7F4E' : '#DDE3E3', kfg: on ? '#D5F8FF' : '#1E7F4E', sfg: on ? '#E8F6EE' : '#6B7070', onPick: () => this.setState({ tab: k }, () => { if (k === 'maps') [this.mA, this.mB].forEach(m => m && m.invalidateSize()); }) }; });
+    const AT = s.atm, sg = v => (v >= 0 ? '+' : '−');
+    const fmtV = (A, v) => (v == null ? '—' : v.toFixed(A.dp));
+    const atmCards = ATM.map(A => {
+      const o = AT && AT[A.key];
+      if (!o || o.err) return { name: A.name, role: A.role, sat: A.sat, unit: A.unit, note: A.note, imgB: '', imgA: '', hasB: false, hasA: false, bgB: 'none', bgA: 'none', dB: fmtD(s.before), dA: fmtD(s.after), lo: '', hi: '', vB: '—', vA: '—', chg: o && o.err ? 'layer unavailable' : 'loading…', chgFg: '#6B7070', enhLabel: 'Analysis area vs surroundings', enh: '—', cover: '' };
+      const vb = o.b.site, va = o.a.site, d = vb != null && va != null ? va - vb : null;
+      const chg = d == null ? 'no valid pixels on one date' : A.rel && Math.abs(vb) > 1e-9 ? sg(d) + Math.abs(d / vb * 100).toFixed(0) + '% change' : sg(d) + Math.abs(d).toFixed(A.dp) + ' ' + A.unit;
+      const enhOne = x => (x.site == null || x.bg == null ? '—' : A.rel && Math.abs(x.bg) > 1e-9 ? sg(x.site - x.bg) + Math.abs((x.site - x.bg) / x.bg * 100).toFixed(0) + '%' : sg(x.site - x.bg) + Math.abs(x.site - x.bg).toFixed(A.dp));
+      const worse = d == null ? null : A.key === 'ndvi' ? d < 0 : d > 0;
+      return { name: A.name, role: A.role, sat: A.sat, unit: A.unit, note: A.note, imgB: o.b.img, imgA: o.a.img, hasB: !!o.b.img, hasA: !!o.a.img, bgB: o.b.img ? 'url("' + o.b.img + '")' : 'none', bgA: o.a.img ? 'url("' + o.a.img + '")' : 'none', dB: fmtD(s.before), dA: fmtD(s.after), lo: o.lo.toFixed(A.dp), hi: o.hi.toFixed(A.dp), vB: fmtV(A, vb), vA: fmtV(A, va), chg, chgFg: d == null || Math.abs(d) < Math.abs(vb || 1) * 0.03 ? '#6B7070' : worse ? '#B5651D' : '#1E7F4E', enhLabel: 'Analysis area vs surroundings', enh: enhOne(o.b) + ' → ' + enhOne(o.a), cover: 'valid pixels ' + Math.round(o.b.cover * 100) + '% / ' + Math.round(o.a.cover * 100) + '% · ' + (A.snap ? '16-day composite' : o.b.days + '-day window') };
+    });
+    const atmText = [];
+    if (!AT) atmText.push(s.atmLoading ? 'Decoding the image layers for both dates…' : 'Run the analysis to decode the image layers.');
+    else {
+      const g = k => { const o = AT[k]; return o && !o.err && o.b.site != null && o.a.site != null ? o : null; };
+      const pc = o => (o.a.site - o.b.site) / Math.abs(o.b.site) * 100;
+      const n2 = g('no2'), so = g('so2'), co = g('co'), ch = g('ch4'), ao = g('aod'), ls = g('lst'), nd = g('ndvi');
+      if (n2) atmText.push('NO₂, the clearest image signature of burning fuel, ' + (pc(n2) >= 0 ? 'rose ' : 'fell ') + Math.abs(pc(n2)).toFixed(0) + '% inside the analysis area (' + n2.b.site.toFixed(2) + ' → ' + n2.a.site.toFixed(2) + ' ×10¹⁵ molec/cm²). The area sits ' + (n2.a.bg ? Math.abs((n2.a.site - n2.a.bg) / n2.a.bg * 100).toFixed(0) + '% ' + (n2.a.site >= n2.a.bg ? 'above' : 'below') : '') + ' its surroundings on the after date' + (n2.a.site > n2.a.bg * 1.2 ? ', which points to a local emission source.' : '.'));
+      if (ch || co) atmText.push((ch ? 'Methane at 400 hPa ' + (ch.a.site >= ch.b.site ? 'increased ' : 'decreased ') + Math.abs(ch.a.site - ch.b.site).toFixed(0) + ' ppbv (' + ch.b.site.toFixed(0) + ' → ' + ch.a.site.toFixed(0) + ')' : '') + (ch && co ? ' and ' : '') + (co ? 'carbon monoxide ' + (co.a.site >= co.b.site ? 'increased ' : 'decreased ') + Math.abs(pc(co)).toFixed(0) + '%' : '') + '. Both are mid-troposphere retrievals on a 1° grid, so they describe the regional air mass that the area contributes to.');
+      if (so) atmText.push('SO₂ in the boundary layer moved from ' + so.b.site.toFixed(2) + ' to ' + so.a.site.toFixed(2) + ' DU' + (Math.max(so.a.site, so.b.site) < 0.5 ? ', within the instrument noise, so no clear sulphur source is detected.' : '.'));
+      if (ao) atmText.push('Aerosol optical depth ' + (ao.a.site >= ao.b.site ? 'rose' : 'fell') + ' from ' + ao.b.site.toFixed(2) + ' to ' + ao.a.site.toFixed(2) + (ao.a.site > 0.5 ? ': the after image shows a hazy, dust- or pollution-laden sky.' : '.'));
+      if (ls || nd) atmText.push((ls ? 'Daytime ground temperature changed ' + sg(ls.a.site - ls.b.site) + Math.abs(ls.a.site - ls.b.site).toFixed(1) + ' °C (' + ls.b.site.toFixed(1) + ' → ' + ls.a.site.toFixed(1) + ' °C), ' + (ls.a.bg != null ? Math.abs(ls.a.site - ls.a.bg).toFixed(1) + ' °C ' + (ls.a.site >= ls.a.bg ? 'hotter' : 'cooler') + ' than the surroundings' : '') : '') + (ls && nd ? '; ' : '') + (nd ? 'mean NDVI went from ' + nd.b.site.toFixed(3) + ' to ' + nd.a.site.toFixed(3) + (nd.a.site < nd.b.site ? ', less active vegetation and less carbon uptake' : ', more active vegetation') : '') + '.');
+    }
+    const P = s.pat, ns = e.bbox;
+    const fromKm = k => (P && P.from[k] ? P.from[k] * P.pxKm2 : 0);
+    const patStats = !P ? [] : [
+      { label: 'Affected area', value: f1(P.km) + ' km²', note: (P.share * 100).toFixed(1) + '% of land pixels clear on both dates show ' + P.label + '.' },
+      { label: 'Number of patches', value: P.nc.toLocaleString('en-US'), note: P.nsig + ' patches of at least 3 pixels; mean patch ' + fk(P.meanKm) + ' km².' },
+      { label: 'Largest patch', value: fk(P.bigKm) + ' km²', note: (P.bigShare * 100).toFixed(0) + '% of all affected area, drawn darker on the map.' },
+      { label: 'Spatial pattern', value: P.bigShare >= 0.5 ? 'Concentrated' : P.top3Share >= 0.6 ? 'Clustered' : 'Dispersed', note: 'The top 3 grid cells hold ' + (P.top3Share * 100).toFixed(0) + '% of the change.' },
+      { label: 'Centre of change', value: P.cent[1].toFixed(3) + '°N ' + P.cent[0].toFixed(3) + '°E', note: 'Weighted towards the ' + P.dir + '.' },
+      P.tgt ? { label: P.tgt === 1 ? 'Connected to existing water' : 'Spreading from bare edges', value: (P.adj * 100).toFixed(0) + '%', note: P.tgt === 1 ? 'Share of new water touching water present before: high values mean overflowing wadis and coast, low values mean isolated ponding.' : 'Share of change touching land that was already bare or built: high values mean edges expanding outward.' } : null,
+      { label: 'Land that was affected', value: f1(fromKm(3)) + ' / ' + f1(fromKm(2)) + ' km²', note: 'Bare or built land (roads, settlements, industry) / vegetation and farmland before the event.' }
+    ].filter(Boolean);
+    const CL = ['Water', 'Vegetation', 'Bare / built', 'Dark soil'];
+    const matMax = P ? Math.max(...P.mat.flat().filter((v, i) => i % 5 !== 0), 1e-6) : 1;
+    const matRows = P ? P.mat.map((row, ri) => ({ label: CL[ri], cells: row.map((v, ci) => ({ v: v < 0.05 ? '·' : fk(v), bg: ri === ci ? '#EEF2F2' : 'rgba(30,127,78,' + (0.05 + 0.55 * Math.min(1, v / matMax)).toFixed(2) + ')', fg: ri !== ci && v / matMax > 0.55 ? '#fff' : '#1d2222' })) })) : [];
+    const hc = P ? 'rgb(' + P.hcol.join(',') + ')' : '#1C6FD1', hmax = P && P.hot.length ? P.hot[0].km : 1;
+    const sigChips = !P ? [] : [P.label, (P.bigShare >= 0.5 ? 'concentrated' : P.top3Share >= 0.6 ? 'clustered' : 'dispersed'), 'centre ' + P.dir.replace(' of the area', ''), P.tgt ? (P.adj * 100).toFixed(0) + '% ' + (P.tgt === 1 ? 'connected to water' : 'edge growth') : null, 'hotspots ' + P.hot.slice(0, 3).map(h => h.id).join(' ')].filter(Boolean);
+    const sigText = !P ? '' : 'This event left ' + f1(P.km) + ' km² of ' + P.label + ' in ' + P.nc.toLocaleString('en-US') + ' patches, with cells ' + P.hot.slice(0, 3).map(h => h.id).join(', ') + ' most affected. When the next packet over this area is analysed, its signature is compared with this one: cells that are affected again are flagged as recurring hotspots, which is how the portal builds risk zones for early warning.';
+
+    return {
+      tabs, tabMapsDisplay: s.tab === 'maps' ? 'flex' : 'none', tabEmisDisplay: s.tab === 'emis' ? 'flex' : 'none', tabPatDisplay: s.tab === 'pat' ? 'flex' : 'none',
+      atmLoading: !!s.atmLoading, atmCards, atmText,
+      atmArea: e.place + ' · dashed box = analysis area, compared with a ' + (Math.max((e.bbox[2] - e.bbox[0]) + 1.2, 1.8)).toFixed(1) + '° surrounding region · ' + fmtD(s.before) + ' vs ' + fmtD(s.after),
+      patTitle: P ? f1(P.km) + ' km² of ' + P.label + ', ' + (P.bigShare >= 0.5 ? 'concentrated in one zone' : P.top3Share >= 0.6 ? 'clustered in a few zones' : 'dispersed across the area') : 'Run the analysis to map the pattern',
+      patSub: e.place + ' · ' + fmtD(s.before) + ' → ' + fmtD(s.after) + ' · from the classified before/after images',
+      patBg: P ? 'url("' + P.img + '")' : 'none', patAspect: P ? P.aspect : '4 / 3',
+      patLegend: P ? [{ color: hc, label: P.label[0].toUpperCase() + P.label.slice(1) }, { color: 'rgb(' + P.dark.join(',') + ')', label: 'Largest patch' }, { color: '#B0BABA', label: 'Other change' }, { color: '#F0F3F3', label: 'No change' }, { color: '#D6DCDC', label: 'Cloud / sea / no data' }] : [],
+      patStats, matHead: CL, matRows,
+      hotspots: P ? P.hot.map(h => ({ id: h.id, ll: h.lat.toFixed(3) + '°N ' + h.lon.toFixed(3) + '°E', km: fk(h.km) + ' km²', pct: (h.pct * 100).toFixed(0) + '%', w: (h.km / hmax * 100).toFixed(0) + '%', color: hc })) : [],
+      sigChips, sigText,
+      mapARef: this.mapARef, mapBRef: this.mapBRef, cvBRef: this.cvBRef, cvARef: this.cvARef, cvCRef: this.cvCRef,
+      evTitle: e.title + ' · ' + e.date, evPlace: e.place, evNote: e.note,
+      events: EVENTS.map(x => ({ title: x.title, date: x.date, ...pill(x.id === s.ev), onPick: () => { this.setState({ ev: x.id, before: x.before, after: x.after, style: x.style, res: null, wx: null, aq: null, poll: null, atm: null, pat: null }, () => { this.syncLayers(true); this.run(); }); } })),
+      before: s.before, after: s.after, maxDate: this.maxDate(),
+      onBefore: ev => this.setState({ before: ev.target.value }, () => this.syncLayers(false)), onAfter: ev => this.setState({ after: ev.target.value }, () => this.syncLayers(false)),
+      runAnalysis: () => this.run(), runLabel: s.loading ? 'Analyzing…' : stale ? 'Re-run analysis' : 'Run analysis', runBg: stale ? '#1E7F4E' : '#35B476',
+      styles: Object.keys(LAYERS).map(k => ({ label: LAYERS[k].label, ...pill(s.style === k), onPick: () => this.setState({ style: k }, () => this.syncLayers(false)) })),
+      beforeShown: fmtD(dateFor(s.style, s.before)) + (LAYERS[s.style].snap ? ' (16-day)' : ''),
+      afterShown: fmtD(dateFor(s.style, s.after)) + (LAYERS[s.style].snap ? ' (16-day)' : ''),
+      styleSource: LAYERS[s.style].src,
+      gridNote: r ? r.w + ' × ' + r.h + ' px · ' + (r.z === 8 ? '~500 m' : '~250 m') + ' per pixel' : 'loading…',
+      cvAspect: r ? r.w + ' / ' + r.h : '4 / 3',
+      legend: [
+        ...[1, 2, 3, 5, 4].map(i => ({ label: CLS[i].label, color: 'rgb(' + CLS[i].color.join(',') + ')' })),
+        { label: 'New water', color: 'rgb(' + CHG.newwater.join(',') + ')' }, { label: 'Water lost', color: 'rgb(' + CHG.lostwater.join(',') + ')' },
+        { label: 'Vegetation loss', color: 'rgb(' + CHG.vegloss.join(',') + ')' }, { label: 'Other change', color: 'rgb(' + CHG.other.join(',') + ')' }, { label: 'Masked', color: 'rgb(' + CHG.masked.join(',') + ')' }
+      ],
+      metrics: an.metrics, headline: an.headline, paragraphs: an.paragraphs, shares: an.shares,
+      confPct: an.conf[0] + '%', confLabel: an.conf[1], confNote: an.conf[2],
+      loading: s.loading, statusDot: s.loading ? '#41DDFF' : s.err ? '#B5651D' : '#35B476',
+      wxNote: wx ? wx.latitude.toFixed(2) + '°N ' + wx.longitude.toFixed(2) + '°E · ' + fmtD(wx.daily.time[0]) + ' – ' + fmtD(wx.daily.time[wx.daily.time.length - 1]) : 'loading…',
+      wxBars: wx ? wx.daily.time.map((d, i) => { const v = wx.daily.precipitation_sum[i] || 0, img = d === s.before || d === s.after;
+        return { h: Math.max(img ? 6 : 2, v / rainMax * 100) + 'px', bg: img ? '#35B476' : '#41DDFF', label: v >= 1 ? v.toFixed(0) : '', day: wx.daily.time.length > 20 ? (i % 3 ? '' : d.slice(8)) : d.slice(8), dayFg: img ? '#1E7F4E' : '#6B7070', title: fmtD(d) + ' · ' + v.toFixed(1) + ' mm' + (img ? ' · image date' : '') }; }) : []
+    };
+  }
+}
+</script>
+</body>
+</html>
