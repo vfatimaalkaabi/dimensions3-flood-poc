@@ -1,0 +1,19 @@
+{
+  "project": "Dimensions\u00b3",
+  "study_area": "Jebel Ali, Dubai, United Arab Emirates",
+  "event_date": "2024-04-16",
+  "screening_label": "MEDIUM",
+  "combined_evidence_score": 0.574,
+  "candidate_area_percent": 0.74,
+  "candidate_pixel_count": 873,
+  "valid_pixel_count": 118327,
+  "peak_rainfall_mm": 53.39,
+  "official_report_count": 6,
+  "public_evidence_count": 3,
+  "total_evidence_records": 9,
+  "spatial_support": 0.148,
+  "rainfall_support": 1.0,
+  "evidence_support": 1.0,
+  "interpretation": "Preliminary multi-source flood-related surface-change screening result.",
+  "limitation": "This score is heuristic and is not a formal accuracy metric or validated flood-extent map."
+}
